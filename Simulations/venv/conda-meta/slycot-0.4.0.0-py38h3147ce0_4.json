@@ -1,0 +1,509 @@
+{
+  "build": "py38h3147ce0_4",
+  "build_number": 4,
+  "channel": "https://conda.anaconda.org/conda-forge/win-64",
+  "constrains": [],
+  "depends": [
+    "libblas >=3.8.0,<4.0a0",
+    "libcblas >=3.8.0,<4.0a0",
+    "libflang >=5.0.0",
+    "liblapack >=3.8.0,<4.0a0",
+    "numpy >=1.16.5,<2.0a0",
+    "python >=3.8,<3.9.0a0",
+    "python_abi 3.8.* *_cp38",
+    "vc >=14.1,<15.0a0",
+    "vs2015_runtime >=14.16.27012"
+  ],
+  "extracted_package_dir": "C:\\Users\\fbcat\\Anaconda3\\pkgs\\slycot-0.4.0.0-py38h3147ce0_4",
+  "features": "",
+  "files": [
+    "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/PKG-INFO",
+    "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/SOURCES.txt",
+    "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/dependency_links.txt",
+    "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/native_libs.txt",
+    "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/not-zip-safe",
+    "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/requires.txt",
+    "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/top_level.txt",
+    "Lib/site-packages/slycot/__init__.py",
+    "Lib/site-packages/slycot/__pycache__/__init__.cpython-38.pyc",
+    "Lib/site-packages/slycot/__pycache__/analysis.cpython-38.pyc",
+    "Lib/site-packages/slycot/__pycache__/examples.cpython-38.pyc",
+    "Lib/site-packages/slycot/__pycache__/exceptions.cpython-38.pyc",
+    "Lib/site-packages/slycot/__pycache__/math.cpython-38.pyc",
+    "Lib/site-packages/slycot/__pycache__/synthesis.cpython-38.pyc",
+    "Lib/site-packages/slycot/__pycache__/transform.cpython-38.pyc",
+    "Lib/site-packages/slycot/__pycache__/version.cpython-38.pyc",
+    "Lib/site-packages/slycot/_wrapper.cp38-win_amd64.pyd",
+    "Lib/site-packages/slycot/analysis.py",
+    "Lib/site-packages/slycot/examples.py",
+    "Lib/site-packages/slycot/exceptions.py",
+    "Lib/site-packages/slycot/math.py",
+    "Lib/site-packages/slycot/synthesis.py",
+    "Lib/site-packages/slycot/tests/__init__.py",
+    "Lib/site-packages/slycot/tests/__pycache__/__init__.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_ab01.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_ab08n.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_ag08bd.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_analysis.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_examples.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_exceptions.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_mb.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_mc.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_sb.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_sg02ad.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_sg03ad.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_tb05ad.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_td04ad.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_tg01ad.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_tg01fd.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/__pycache__/test_transform.cpython-38.pyc",
+    "Lib/site-packages/slycot/tests/test_ab01.py",
+    "Lib/site-packages/slycot/tests/test_ab08n.py",
+    "Lib/site-packages/slycot/tests/test_ag08bd.py",
+    "Lib/site-packages/slycot/tests/test_analysis.py",
+    "Lib/site-packages/slycot/tests/test_examples.py",
+    "Lib/site-packages/slycot/tests/test_exceptions.py",
+    "Lib/site-packages/slycot/tests/test_mb.py",
+    "Lib/site-packages/slycot/tests/test_mc.py",
+    "Lib/site-packages/slycot/tests/test_sb.py",
+    "Lib/site-packages/slycot/tests/test_sg02ad.py",
+    "Lib/site-packages/slycot/tests/test_sg03ad.py",
+    "Lib/site-packages/slycot/tests/test_tb05ad.py",
+    "Lib/site-packages/slycot/tests/test_td04ad.py",
+    "Lib/site-packages/slycot/tests/test_tg01ad.py",
+    "Lib/site-packages/slycot/tests/test_tg01fd.py",
+    "Lib/site-packages/slycot/tests/test_transform.py",
+    "Lib/site-packages/slycot/transform.py",
+    "Lib/site-packages/slycot/version.py",
+    ".nonadmin"
+  ],
+  "fn": "slycot-0.4.0.0-py38h3147ce0_4.tar.bz2",
+  "license": "GPL-2.0-only",
+  "license_family": "GPL",
+  "link": {
+    "source": "C:\\Users\\fbcat\\Anaconda3\\pkgs\\slycot-0.4.0.0-py38h3147ce0_4",
+    "type": 1
+  },
+  "md5": "d6032bdee071cd2a6ee3345709f9c875",
+  "name": "slycot",
+  "package_tarball_full_path": "C:\\Users\\fbcat\\Anaconda3\\pkgs\\slycot-0.4.0.0-py38h3147ce0_4.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/PKG-INFO",
+        "path_type": "hardlink",
+        "sha256": "a8b0565b0b6f288e926e3fba97d035cad36e99df72caf9089855cf03ff67b318",
+        "sha256_in_prefix": "a8b0565b0b6f288e926e3fba97d035cad36e99df72caf9089855cf03ff67b318",
+        "size_in_bytes": 8443
+      },
+      {
+        "_path": "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/SOURCES.txt",
+        "path_type": "hardlink",
+        "sha256": "0247bfb7b8659ed9d8ed23f62e5d308c0da01b81e58b99c254784686ba5e8bc2",
+        "sha256_in_prefix": "0247bfb7b8659ed9d8ed23f62e5d308c0da01b81e58b99c254784686ba5e8bc2",
+        "size_in_bytes": 12193
+      },
+      {
+        "_path": "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/dependency_links.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/native_libs.txt",
+        "path_type": "hardlink",
+        "sha256": "945242dffb072cb32cbaf7426c85fc16a15174f72d84ba20d41b04d52cbfa589",
+        "sha256_in_prefix": "945242dffb072cb32cbaf7426c85fc16a15174f72d84ba20d41b04d52cbfa589",
+        "size_in_bytes": 36
+      },
+      {
+        "_path": "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/not-zip-safe",
+        "path_type": "hardlink",
+        "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+        "sha256_in_prefix": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+        "size_in_bytes": 2
+      },
+      {
+        "_path": "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/requires.txt",
+        "path_type": "hardlink",
+        "sha256": "e09f656c130b9c08b2c5ab7187c891295e449ed77febea2a6ceee9cc98ccb0fc",
+        "sha256_in_prefix": "e09f656c130b9c08b2c5ab7187c891295e449ed77febea2a6ceee9cc98ccb0fc",
+        "size_in_bytes": 6
+      },
+      {
+        "_path": "Lib/site-packages/slycot-0.4.0.0-py3.8-win-amd64.egg-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "1afa282e1c682ad82daf99941fc6e45712dd602f8bd2567b53f36620a0ede6d5",
+        "sha256_in_prefix": "1afa282e1c682ad82daf99941fc6e45712dd602f8bd2567b53f36620a0ede6d5",
+        "size_in_bytes": 7
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "c0d7bb2f4e9ba3618a7c09880cb1a1e6f016f93c79fd7df8c24e437be7ef4fca",
+        "sha256_in_prefix": "c0d7bb2f4e9ba3618a7c09880cb1a1e6f016f93c79fd7df8c24e437be7ef4fca",
+        "size_in_bytes": 1419
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/__init__.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "14d9222c6538d3a54c5d73646954966b43eea538d2df19b4a06dd0d0b19b8b46",
+        "sha256_in_prefix": "14d9222c6538d3a54c5d73646954966b43eea538d2df19b4a06dd0d0b19b8b46",
+        "size_in_bytes": 1443
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/analysis.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "6283fb92c18ddf70672a966233ec6fe278ede3817cec276576c6729b0b6ec5b8",
+        "sha256_in_prefix": "6283fb92c18ddf70672a966233ec6fe278ede3817cec276576c6729b0b6ec5b8",
+        "size_in_bytes": 80167
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/examples.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "fb541152c165e97edb92e58944455fc8cecb4672da22b00eb05df4f9aef5f0f7",
+        "sha256_in_prefix": "fb541152c165e97edb92e58944455fc8cecb4672da22b00eb05df4f9aef5f0f7",
+        "size_in_bytes": 7662
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/exceptions.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "016696e63324f429a40f9191b3b866b62042783372b172179765b7a24ade4efd",
+        "sha256_in_prefix": "016696e63324f429a40f9191b3b866b62042783372b172179765b7a24ade4efd",
+        "size_in_bytes": 7497
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/math.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "ced9d44d7ca60e3778b7494c22fe3a8f07783296067bfb0e600fb1a5af20abce",
+        "sha256_in_prefix": "ced9d44d7ca60e3778b7494c22fe3a8f07783296067bfb0e600fb1a5af20abce",
+        "size_in_bytes": 29769
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/synthesis.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "c483f3d6b5063a56ab0bebf654e7af6a954eb3a932cbdcfdd8b23c2221a8160e",
+        "sha256_in_prefix": "c483f3d6b5063a56ab0bebf654e7af6a954eb3a932cbdcfdd8b23c2221a8160e",
+        "size_in_bytes": 104484
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/transform.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "f1d33b0d2c7afd3b50c7d93bffcf8c142d626523181cd67bd3d13f114eceed37",
+        "sha256_in_prefix": "f1d33b0d2c7afd3b50c7d93bffcf8c142d626523181cd67bd3d13f114eceed37",
+        "size_in_bytes": 51098
+      },
+      {
+        "_path": "Lib/site-packages/slycot/__pycache__/version.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "16e916bd13e3178172ddd5c8d2fc8cdfa86c4a3207e1e47938cdc6d1a4c0c761",
+        "sha256_in_prefix": "16e916bd13e3178172ddd5c8d2fc8cdfa86c4a3207e1e47938cdc6d1a4c0c761",
+        "size_in_bytes": 284
+      },
+      {
+        "_path": "Lib/site-packages/slycot/_wrapper.cp38-win_amd64.pyd",
+        "path_type": "hardlink",
+        "sha256": "86e9e4f43e4f462d0af3380b3f905af73bb4fae6902a56d732fce775c09e6531",
+        "sha256_in_prefix": "86e9e4f43e4f462d0af3380b3f905af73bb4fae6902a56d732fce775c09e6531",
+        "size_in_bytes": 3345408
+      },
+      {
+        "_path": "Lib/site-packages/slycot/analysis.py",
+        "path_type": "hardlink",
+        "sha256": "4d2487eaf56bdee61b086213b1b560642a724f2819e51fc4f5b41e9800a484c6",
+        "sha256_in_prefix": "4d2487eaf56bdee61b086213b1b560642a724f2819e51fc4f5b41e9800a484c6",
+        "size_in_bytes": 82236
+      },
+      {
+        "_path": "Lib/site-packages/slycot/examples.py",
+        "path_type": "hardlink",
+        "sha256": "0441a5e9fd51ba32c591a6fd634a4cff2f14b217951f46f83b4da324ff317933",
+        "sha256_in_prefix": "0441a5e9fd51ba32c591a6fd634a4cff2f14b217951f46f83b4da324ff317933",
+        "size_in_bytes": 9096
+      },
+      {
+        "_path": "Lib/site-packages/slycot/exceptions.py",
+        "path_type": "hardlink",
+        "sha256": "eab033514436b9183fda1b2cd36f1fd8f5d5eaf712ccf7e7855f7a17ffa4ea85",
+        "sha256_in_prefix": "eab033514436b9183fda1b2cd36f1fd8f5d5eaf712ccf7e7855f7a17ffa4ea85",
+        "size_in_bytes": 8737
+      },
+      {
+        "_path": "Lib/site-packages/slycot/math.py",
+        "path_type": "hardlink",
+        "sha256": "821d8c92c981cfa9f4093a7bfda4ec87ec9cf9f078e63b3fbaf3677854630a7e",
+        "sha256_in_prefix": "821d8c92c981cfa9f4093a7bfda4ec87ec9cf9f078e63b3fbaf3677854630a7e",
+        "size_in_bytes": 30942
+      },
+      {
+        "_path": "Lib/site-packages/slycot/synthesis.py",
+        "path_type": "hardlink",
+        "sha256": "f44b516f438600b8cc5f7c9ab43803d90c36e27d29087633f5222baf6eeaa9c8",
+        "sha256_in_prefix": "f44b516f438600b8cc5f7c9ab43803d90c36e27d29087633f5222baf6eeaa9c8",
+        "size_in_bytes": 107505
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/__init__.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "9f8b0e8a4e6af8e7260a66868ce41b675e28e19417daae0d6d64af1dd9b7cf8f",
+        "sha256_in_prefix": "9f8b0e8a4e6af8e7260a66868ce41b675e28e19417daae0d6d64af1dd9b7cf8f",
+        "size_in_bytes": 168
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_ab01.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "c781519e0698a09199a92b093a2faaa5a1b79e19602e30b71464b96de9a1125a",
+        "sha256_in_prefix": "c781519e0698a09199a92b093a2faaa5a1b79e19602e30b71464b96de9a1125a",
+        "size_in_bytes": 1355
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_ab08n.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "39f4617ac86a3dfbb2e6a11b97bf9eb2db02eb41c74ca1dc5237472ad83df87c",
+        "sha256_in_prefix": "39f4617ac86a3dfbb2e6a11b97bf9eb2db02eb41c74ca1dc5237472ad83df87c",
+        "size_in_bytes": 2726
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_ag08bd.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "bde1c7a6fecf3ae19f3f528783f477af64b99ce181dccf5c886381fa5edd72b6",
+        "sha256_in_prefix": "bde1c7a6fecf3ae19f3f528783f477af64b99ce181dccf5c886381fa5edd72b6",
+        "size_in_bytes": 3466
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_analysis.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "0e5d7036cb8ef9386814438cc745c38d4c63789a92073124b1b1854bcfc26cec",
+        "sha256_in_prefix": "0e5d7036cb8ef9386814438cc745c38d4c63789a92073124b1b1854bcfc26cec",
+        "size_in_bytes": 1244
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_examples.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "b975c7fa090cbf76487c94578ed3e5b93cf31c080c7bfabafb5ec270a4d7feaa",
+        "sha256_in_prefix": "b975c7fa090cbf76487c94578ed3e5b93cf31c080c7bfabafb5ec270a4d7feaa",
+        "size_in_bytes": 1836
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_exceptions.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "91b3d46d0ccd75f305ea28fe50dd70143085bb33259d82020082c4c9a5953a2a",
+        "sha256_in_prefix": "91b3d46d0ccd75f305ea28fe50dd70143085bb33259d82020082c4c9a5953a2a",
+        "size_in_bytes": 4021
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_mb.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "92374698e37358382403207f3fb57beed45eda187dae41bd41a29075b655233b",
+        "sha256_in_prefix": "92374698e37358382403207f3fb57beed45eda187dae41bd41a29075b655233b",
+        "size_in_bytes": 9365
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_mc.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "49c9bb87b25c323d43dcc16b852ccba81991bff8e2e1e52a212d21b6be52030a",
+        "sha256_in_prefix": "49c9bb87b25c323d43dcc16b852ccba81991bff8e2e1e52a212d21b6be52030a",
+        "size_in_bytes": 1692
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_sb.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "77061d0c1dac67a659db015d1493639f702f687f9572c8ebd1707651adbc35d3",
+        "sha256_in_prefix": "77061d0c1dac67a659db015d1493639f702f687f9572c8ebd1707651adbc35d3",
+        "size_in_bytes": 5935
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_sg02ad.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "6b2abc08bba86f5528173af5ad23aa3a09c18ea29901ad95cddb2c67113611a3",
+        "sha256_in_prefix": "6b2abc08bba86f5528173af5ad23aa3a09c18ea29901ad95cddb2c67113611a3",
+        "size_in_bytes": 1534
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_sg03ad.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "6e6044c7e4ad7f611725488886ea4bf56e1cfa3f73e84a1790af5c6c7a4f6d87",
+        "sha256_in_prefix": "6e6044c7e4ad7f611725488886ea4bf56e1cfa3f73e84a1790af5c6c7a4f6d87",
+        "size_in_bytes": 2362
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_tb05ad.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "92020ec4d1b6d14a037fb0fcd2f02d6fd2d68957f2b17a3a754b9390dcb77cc7",
+        "sha256_in_prefix": "92020ec4d1b6d14a037fb0fcd2f02d6fd2d68957f2b17a3a754b9390dcb77cc7",
+        "size_in_bytes": 7348
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_td04ad.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "4a1d48889cdee0c189378a0f7469550089c8c5d99dbd0ca10070f7a5ddf16e8f",
+        "sha256_in_prefix": "4a1d48889cdee0c189378a0f7469550089c8c5d99dbd0ca10070f7a5ddf16e8f",
+        "size_in_bytes": 6444
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_tg01ad.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "a1ccbad4931342632b79f46873ed0c9cb3dd0a175bfa85c25bf22bf7103af091",
+        "sha256_in_prefix": "a1ccbad4931342632b79f46873ed0c9cb3dd0a175bfa85c25bf22bf7103af091",
+        "size_in_bytes": 2053
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_tg01fd.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "d87bc6fca87327ec9706ccd570d300e97bb189bc46b7c424982d4dcceceff192",
+        "sha256_in_prefix": "d87bc6fca87327ec9706ccd570d300e97bb189bc46b7c424982d4dcceceff192",
+        "size_in_bytes": 3430
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/__pycache__/test_transform.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "e0144294bd2c7c7f9c3742fc5d1d4bb8c198c23a5787d3ea1d5d2c2a49149d2d",
+        "sha256_in_prefix": "e0144294bd2c7c7f9c3742fc5d1d4bb8c198c23a5787d3ea1d5d2c2a49149d2d",
+        "size_in_bytes": 824
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_ab01.py",
+        "path_type": "hardlink",
+        "sha256": "2319c1fbc8b4fcfb947d31598b3d24f96d35cef09ce713587028d50022da8749",
+        "sha256_in_prefix": "2319c1fbc8b4fcfb947d31598b3d24f96d35cef09ce713587028d50022da8749",
+        "size_in_bytes": 1936
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_ab08n.py",
+        "path_type": "hardlink",
+        "sha256": "80b08de62abf166f426f5f94643a4d4c9d97d8138be5229ac2f676b5ea0dba98",
+        "sha256_in_prefix": "80b08de62abf166f426f5f94643a4d4c9d97d8138be5229ac2f676b5ea0dba98",
+        "size_in_bytes": 3063
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_ag08bd.py",
+        "path_type": "hardlink",
+        "sha256": "d0d38fef56b4b1e51db5a311b5a17eb3d7d4ad7122635a099fb48b105aa38384",
+        "sha256_in_prefix": "d0d38fef56b4b1e51db5a311b5a17eb3d7d4ad7122635a099fb48b105aa38384",
+        "size_in_bytes": 4091
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_analysis.py",
+        "path_type": "hardlink",
+        "sha256": "6d99221f64c68c78b09c9ae2ee3477f8ff3797075cdcad33eb7fa6d37c058e1e",
+        "sha256_in_prefix": "6d99221f64c68c78b09c9ae2ee3477f8ff3797075cdcad33eb7fa6d37c058e1e",
+        "size_in_bytes": 2434
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_examples.py",
+        "path_type": "hardlink",
+        "sha256": "966ca8da6b17594d978cbc1d48f88f67fc72526203ef8585902a4888e5976cef",
+        "sha256_in_prefix": "966ca8da6b17594d978cbc1d48f88f67fc72526203ef8585902a4888e5976cef",
+        "size_in_bytes": 1952
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_exceptions.py",
+        "path_type": "hardlink",
+        "sha256": "10bfab61ec6875ad639587236ed6ee35cbd290129b7b25f2ff4ca3b4bdb578a8",
+        "sha256_in_prefix": "10bfab61ec6875ad639587236ed6ee35cbd290129b7b25f2ff4ca3b4bdb578a8",
+        "size_in_bytes": 4363
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_mb.py",
+        "path_type": "hardlink",
+        "sha256": "e878d96198f657f92806f216fb360c25e51707ed50ba7de1dd8df14fc9f04614",
+        "sha256_in_prefix": "e878d96198f657f92806f216fb360c25e51707ed50ba7de1dd8df14fc9f04614",
+        "size_in_bytes": 13604
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_mc.py",
+        "path_type": "hardlink",
+        "sha256": "0b6c5fc7a6e6219227d313b14af8ae5ac2a5402ccdac8aff64aa3d8d9a92602b",
+        "sha256_in_prefix": "0b6c5fc7a6e6219227d313b14af8ae5ac2a5402ccdac8aff64aa3d8d9a92602b",
+        "size_in_bytes": 1575
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_sb.py",
+        "path_type": "hardlink",
+        "sha256": "1778da1d5872ad302df9749e0c6aa569b2baabc09f426d8f288985b509168fc0",
+        "sha256_in_prefix": "1778da1d5872ad302df9749e0c6aa569b2baabc09f426d8f288985b509168fc0",
+        "size_in_bytes": 8712
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_sg02ad.py",
+        "path_type": "hardlink",
+        "sha256": "efcfe97f3c7a230619b40efab5c293c68c48028dcb3049d6ff476e60b36323ad",
+        "sha256_in_prefix": "efcfe97f3c7a230619b40efab5c293c68c48028dcb3049d6ff476e60b36323ad",
+        "size_in_bytes": 1531
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_sg03ad.py",
+        "path_type": "hardlink",
+        "sha256": "eec70e62b7813491fbabb021782f885072c88402a783437454095f728872c2e3",
+        "sha256_in_prefix": "eec70e62b7813491fbabb021782f885072c88402a783437454095f728872c2e3",
+        "size_in_bytes": 2591
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_tb05ad.py",
+        "path_type": "hardlink",
+        "sha256": "ae6be3f1eb7f1fd5d6bdb0ed706bea5e243fad8e549a75b5f2eb71326d70e50b",
+        "sha256_in_prefix": "ae6be3f1eb7f1fd5d6bdb0ed706bea5e243fad8e549a75b5f2eb71326d70e50b",
+        "size_in_bytes": 8898
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_td04ad.py",
+        "path_type": "hardlink",
+        "sha256": "2ca65a903196f08fde5bec920150caa30becf7593c8d718fed7f3c58044db3af",
+        "sha256_in_prefix": "2ca65a903196f08fde5bec920150caa30becf7593c8d718fed7f3c58044db3af",
+        "size_in_bytes": 8707
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_tg01ad.py",
+        "path_type": "hardlink",
+        "sha256": "4982bfdccd32c24ec9937ddd2facde5ae54cd6e60534cdecaea27b5da3814959",
+        "sha256_in_prefix": "4982bfdccd32c24ec9937ddd2facde5ae54cd6e60534cdecaea27b5da3814959",
+        "size_in_bytes": 2573
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_tg01fd.py",
+        "path_type": "hardlink",
+        "sha256": "a4aab50cde5f6c89d69f6c6ecb3f8535297e18177b1ba836a0c2ecc7543dcd8a",
+        "sha256_in_prefix": "a4aab50cde5f6c89d69f6c6ecb3f8535297e18177b1ba836a0c2ecc7543dcd8a",
+        "size_in_bytes": 4403
+      },
+      {
+        "_path": "Lib/site-packages/slycot/tests/test_transform.py",
+        "path_type": "hardlink",
+        "sha256": "75c437914cebba2eb126aa33a9e1d2d1824f8687a7c7da8b9a64c6cb807ebece",
+        "sha256_in_prefix": "75c437914cebba2eb126aa33a9e1d2d1824f8687a7c7da8b9a64c6cb807ebece",
+        "size_in_bytes": 914
+      },
+      {
+        "_path": "Lib/site-packages/slycot/transform.py",
+        "path_type": "hardlink",
+        "sha256": "ee0498749865c6beb34c2153bc73fc1a0edb34742ae5c587df4af1c9f29ba825",
+        "sha256_in_prefix": "ee0498749865c6beb34c2153bc73fc1a0edb34742ae5c587df4af1c9f29ba825",
+        "size_in_bytes": 55443
+      },
+      {
+        "_path": "Lib/site-packages/slycot/version.py",
+        "path_type": "hardlink",
+        "sha256": "4efe04ee5377b137dd1673d2ffbecb4e91762819d0bc7e6f963cda930b8ef9e5",
+        "sha256_in_prefix": "4efe04ee5377b137dd1673d2ffbecb4e91762819d0bc7e6f963cda930b8ef9e5",
+        "size_in_bytes": 213
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "slycot",
+  "sha256": "4855778a1dc18b89d4f7ca764200532e1820469d59783e41bd57196bcdce2f3b",
+  "size": 1312423,
+  "subdir": "win-64",
+  "timestamp": 1604220077336,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/win-64/slycot-0.4.0.0-py38h3147ce0_4.tar.bz2",
+  "version": "0.4.0.0"
+}

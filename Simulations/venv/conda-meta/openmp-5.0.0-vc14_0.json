@@ -1,0 +1,84 @@
+{
+  "build": "vc14_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/win-64",
+  "constrains": [],
+  "depends": [
+    "clangdev 5.0.0|5.0.0.*",
+    "vc 14.*"
+  ],
+  "extracted_package_dir": "C:\\Users\\fbcat\\Anaconda3\\pkgs\\openmp-5.0.0-vc14_0",
+  "features": "",
+  "files": [
+    "Library/bin/libiomp5md.dll",
+    "Library/bin/libomp.dll",
+    "Library/include/omp.h",
+    "Library/lib/clang/5.0.0/include/omp.h",
+    "Library/lib/libiomp5md.dll",
+    "Library/lib/libomp.lib",
+    ".nonadmin"
+  ],
+  "fn": "openmp-5.0.0-vc14_0.tar.bz2",
+  "license": "NCSA",
+  "link": {
+    "source": "C:\\Users\\fbcat\\Anaconda3\\pkgs\\openmp-5.0.0-vc14_0",
+    "type": 1
+  },
+  "md5": "83017f5794d518e93d9ed7785275c16c",
+  "name": "openmp",
+  "package_tarball_full_path": "C:\\Users\\fbcat\\Anaconda3\\pkgs\\openmp-5.0.0-vc14_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "Library/bin/libiomp5md.dll",
+        "path_type": "hardlink",
+        "sha256": "d9debf7a7b7b2b1f62976ecfef5bf571345a1ea9d9baa2f0f3d0f89156c71c96",
+        "sha256_in_prefix": "d9debf7a7b7b2b1f62976ecfef5bf571345a1ea9d9baa2f0f3d0f89156c71c96",
+        "size_in_bytes": 613888
+      },
+      {
+        "_path": "Library/bin/libomp.dll",
+        "path_type": "hardlink",
+        "sha256": "d9debf7a7b7b2b1f62976ecfef5bf571345a1ea9d9baa2f0f3d0f89156c71c96",
+        "sha256_in_prefix": "d9debf7a7b7b2b1f62976ecfef5bf571345a1ea9d9baa2f0f3d0f89156c71c96",
+        "size_in_bytes": 613888
+      },
+      {
+        "_path": "Library/include/omp.h",
+        "path_type": "hardlink",
+        "sha256": "d32eb20fee392fb9466bdd9189b8df57b8c781886c4697aaca5be5487ccee5df",
+        "sha256_in_prefix": "d32eb20fee392fb9466bdd9189b8df57b8c781886c4697aaca5be5487ccee5df",
+        "size_in_bytes": 9389
+      },
+      {
+        "_path": "Library/lib/clang/5.0.0/include/omp.h",
+        "path_type": "hardlink",
+        "sha256": "d32eb20fee392fb9466bdd9189b8df57b8c781886c4697aaca5be5487ccee5df",
+        "sha256_in_prefix": "d32eb20fee392fb9466bdd9189b8df57b8c781886c4697aaca5be5487ccee5df",
+        "size_in_bytes": 9389
+      },
+      {
+        "_path": "Library/lib/libiomp5md.dll",
+        "path_type": "hardlink",
+        "sha256": "cd3986bb28a85046df70178c64f7ced68c5d31c7324b21748120cfc687ff0b18",
+        "sha256_in_prefix": "cd3986bb28a85046df70178c64f7ced68c5d31c7324b21748120cfc687ff0b18",
+        "size_in_bytes": 154078
+      },
+      {
+        "_path": "Library/lib/libomp.lib",
+        "path_type": "hardlink",
+        "sha256": "cd3986bb28a85046df70178c64f7ced68c5d31c7324b21748120cfc687ff0b18",
+        "sha256_in_prefix": "cd3986bb28a85046df70178c64f7ced68c5d31c7324b21748120cfc687ff0b18",
+        "size_in_bytes": 154078
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "e16a37b12ac11b66b2b3bdf05ac8e0f7ff4f4bc241886215108c6cd18bfcef4b",
+  "size": 589798,
+  "subdir": "win-64",
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/win-64/openmp-5.0.0-vc14_0.tar.bz2",
+  "version": "5.0.0"
+}
