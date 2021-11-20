@@ -157,11 +157,10 @@ class MovingPathFollowingTest:
 
 
 class MovingPathFollowing:
-    def __init__(self, number_laps=4, saturate=1, state_history=False, dt=1):
+    def __init__(self, saturate=1, state_history=False, dt=1):
         self.state_history = state_history
         self.dt = dt
         self.saturate = saturate
-        self.number_laps = number_laps
 
         self.state = {
             "x": 0,
