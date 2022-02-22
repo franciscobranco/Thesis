@@ -244,7 +244,11 @@ class Line(PathSection):
         """
         x = np.linspace(0, self.size, self.resolution)
         y = np.zeros((self.resolution,))
-        plot_matrix = utils.rotation_matrix(self.orientation).dot(np.array([x, y])) + self.position
+        position_vector = np.zeros((2, self.resolution))
+        for i in range(self.resolution):
+            position_vector[0][i] = self.position[0]
+            position_vector[1][i] = self.position[1]
+        plot_matrix = utils.rotation_matrix(self.orientation).dot(np.array([x, y])) + position_vector
 
         return plot_matrix[0], plot_matrix[1]
 

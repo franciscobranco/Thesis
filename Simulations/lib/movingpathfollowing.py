@@ -13,16 +13,19 @@ import numpy as np
 
 
 class MovingPathFollowingTest:
-    def __init__(self, number_laps=4, saturate=1, state_history=False, dt=1):
+    def __init__(self, number_laps=4, target_velocity="Single", follower_velocity="Single", saturate=1, state_history=False, dt=1):
         self.state_history = state_history
         self.dt = dt
         self.saturate = saturate
         self.number_laps = number_laps
+        self.target_velocity = target_velocity
+        self.follower_velocity = follower_velocity
 
         self.state = {
             "x": 0,
             "y": 0,
             "theta_m_ref": 0,
+            "velocity": 0
         }
 
         self.inputs = {
@@ -30,16 +33,25 @@ class MovingPathFollowingTest:
             "target_y": 0,
             "target_yaw": 0,
             "target_u": 0,
-            "target_velocity": 0,
             "follower_u": 0,
-            "follower_velocity": 0
         }
+        if target_velocity == "Single":
+            self.inputs["target_velocity"] = 0
+        elif target_velocity == "Multiple":
+            self.inputs["target_x_dot"] = 0
+            self.inputs["target_y_dot"] = 0
+        if follower_velocity == "Single":
+            self.inputs["follower_velocity"] = 0
+        elif target_velocity == "Multiple":
+            self.inputs["follower_x_dot"] = 0
+            self.inputs["follower_y_dot"] = 0
 
         if state_history:
             self.past_state = {
                 "x": [],
                 "y": [],
-                "theta_m_ref": []
+                "theta_m_ref": [],
+                "velocity": []
             }
 
     def set_initial_conditions(self, x, y, theta_m_ref):
@@ -56,6 +68,7 @@ class MovingPathFollowingTest:
         outputs["x_ref"] = point_ref[0]
         outputs["y_ref"] = point_ref[1]
         outputs["theta_m_ref"] = self.state["theta_m_ref"]
+        outputs["velocity"] = self.state["velocity"]
 
         return self.inputs.copy(), outputs
 
@@ -76,28 +89,41 @@ class MovingPathFollowingTest:
         self.state["x"] = self.state["x"] + follower_velocity[0] * dt
         self.state["y"] = self.state["y"] + follower_velocity[1] * dt
         self.state["theta_m_ref"] = utils.angle_wrapper(self.state["theta_m_ref"] + theta_m_dot * dt)
+        self.state["velocity"] = np.linalg.norm(follower_velocity)
 
         if self.state_history:
             for state in self.state.keys():
                 self.past_state[state].append(self.state[state])
 
     def follower_x_dot(self):
-        x_dot = self.inputs["follower_velocity"] * np.cos(self.state["theta_m_ref"])
+        if self.follower_velocity == "Single":
+            x_dot = self.inputs["follower_velocity"] * np.cos(self.state["theta_m_ref"])
+        elif self.follower_velocity == "Multiple":
+            x_dot = self.inputs["follower_x_dot"]
 
         return x_dot
 
     def follower_y_dot(self):
-        y_dot = self.inputs["follower_velocity"] * np.sin(self.state["theta_m_ref"])
-
+        if self.follower_velocity == "Single":
+            y_dot = self.inputs["follower_velocity"] * np.sin(self.state["theta_m_ref"])
+        elif self.follower_velocity == "Multiple":
+            y_dot = self.inputs["follower_y_dot"]
+        
         return y_dot
 
     def target_x_dot(self):
-        x_dot = self.inputs["target_velocity"] * np.cos(self.inputs["target_yaw"])
+        if self.target_velocity == "Single":
+            x_dot = self.inputs["target_velocity"] * np.cos(self.inputs["target_yaw"])
+        elif self.target_velocity == "Multiple":
+            x_dot = self.inputs["target_x_dot"]
 
         return x_dot
 
     def target_y_dot(self):
-        y_dot = self.inputs["target_velocity"] * np.sin(self.inputs["target_yaw"])
+        if self.target_velocity == "Single":
+            y_dot = self.inputs["target_velocity"] * np.sin(self.inputs["target_yaw"])
+        elif self.target_velocity == "Multiple":
+            y_dot = self.inputs["target_y_dot"]
 
         return y_dot
 
@@ -157,10 +183,12 @@ class MovingPathFollowingTest:
 
 
 class MovingPathFollowing:
-    def __init__(self, saturate=1, state_history=False, dt=1):
+    def __init__(self, target_velocity="Single", follower_velocity="Single", saturate=1, state_history=False, dt=1):
         self.state_history = state_history
         self.dt = dt
         self.saturate = saturate
+        self.target_velocity = target_velocity
+        self.follower_velocity = follower_velocity
 
         self.state = {
             "x": 0,
@@ -173,10 +201,18 @@ class MovingPathFollowing:
             "target_y": 0,
             "target_yaw": 0,
             "target_u": 0,
-            "target_velocity": 0,
             "follower_u": 0,
-            "follower_velocity": 0
         }
+        if target_velocity == "Single":
+            self.inputs["target_velocity"] = 0
+        elif target_velocity == "Multiple":
+            self.inputs["target_x_dot"] = 0
+            self.inputs["target_y_dot"] = 0
+        if follower_velocity == "Single":
+            self.inputs["follower_velocity"] = 0
+        elif target_velocity == "Multiple":
+            self.inputs["follower_x_dot"] = 0
+            self.inputs["follower_y_dot"] = 0
 
         if state_history:
             self.past_state = {
@@ -225,22 +261,34 @@ class MovingPathFollowing:
                 self.past_state[state].append(self.state[state])
 
     def follower_x_dot(self):
-        x_dot = self.inputs["follower_velocity"] * np.cos(self.state["theta_m_ref"])
+        if self.follower_velocity == "Single":
+            x_dot = self.inputs["follower_velocity"] * np.cos(self.state["theta_m_ref"])
+        elif self.follower_velocity == "Multiple":
+            x_dot = self.inputs["follower_x_dot"]
 
         return x_dot
 
     def follower_y_dot(self):
-        y_dot = self.inputs["follower_velocity"] * np.sin(self.state["theta_m_ref"])
-
+        if self.follower_velocity == "Single":
+            y_dot = self.inputs["follower_velocity"] * np.sin(self.state["theta_m_ref"])
+        elif self.follower_velocity == "Multiple":
+            y_dot = self.inputs["follower_y_dot"]
+        
         return y_dot
 
     def target_x_dot(self):
-        x_dot = self.inputs["target_velocity"] * np.cos(self.inputs["target_yaw"])
+        if self.target_velocity == "Single":
+            x_dot = self.inputs["target_velocity"] * np.cos(self.inputs["target_yaw"])
+        elif self.target_velocity == "Multiple":
+            x_dot = self.inputs["target_x_dot"]
 
         return x_dot
 
     def target_y_dot(self):
-        y_dot = self.inputs["target_velocity"] * np.sin(self.inputs["target_yaw"])
+        if self.target_velocity == "Single":
+            y_dot = self.inputs["target_velocity"] * np.sin(self.inputs["target_yaw"])
+        elif self.target_velocity == "Multiple":
+            y_dot = self.inputs["target_y_dot"]
 
         return y_dot
 
