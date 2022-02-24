@@ -1340,13 +1340,16 @@ class ASVMPFOnAUVTargetPursuit:
 
 
 class DoubleASVMPFOnAUVTargetPursuit:
-    def __init__(self, path_target, path_tracker0, path_tracker1, pf_params=None, cpf_params=None, ekf_params=None, time_halted=50, history=False, dt=1):
+    def __init__(self, path_target0, path_target1, path_target2, path_tracker0, path_tracker1, pf_params=None, cpf_params_target=None, cpf_params_tracker=None, ekf_params=None, time_halted=50, etc_type="Time", history=False, dt=1):
         self.dt = dt
-        self.path_target = path_target
+        self.path_target0 = path_target0
+        self.path_target1 = path_target1
+        self.path_target2 = path_target2
         self.path_tracker0 = path_tracker0
         self.path_tracker1 = path_tracker1
         self.pf_prarams = pf_params
-        self.cpf_params = cpf_params
+        self.cpf_params_target = cpf_params_target
+        self.cpf_params_tracker = cpf_params_tracker
         self.ekf_params = ekf_params
         self.time_halted = time_halted
 
@@ -1356,11 +1359,21 @@ class DoubleASVMPFOnAUVTargetPursuit:
         if history:
             state_history = True
             self.past_outputs = {
-                "x_target": [],
-                "y_target": [],
-                "theta_m_target": [],
-                "s_target": [],
-                "u_target": [],
+                "x_target0": [],
+                "y_target0": [],
+                "theta_m_target0": [],
+                "s_target0": [],
+                "u_target0": [],
+                "x_target1": [],
+                "y_target1": [],
+                "theta_m_target1": [],
+                "s_target1": [],
+                "u_target1": [],
+                "x_target2": [],
+                "y_target2": [],
+                "theta_m_target2": [],
+                "s_target2": [],
+                "u_target2": [],
                 "x_tracker0": [],
                 "y_tracker0": [],
                 "theta_m_tracker0": [],
@@ -1371,7 +1384,9 @@ class DoubleASVMPFOnAUVTargetPursuit:
                 "theta_m_tracker1": [],
                 "s_tracker1": [],
                 "u_tracker1": [],
-                "velocity_target": [],
+                "velocity_target0": [],
+                "velocity_target1": [],
+                "velocity_target2": [],
                 "velocity_tracker0": [],
                 "velocity_tracker1": [],
                 "x_ekf": [],
@@ -1385,26 +1400,49 @@ class DoubleASVMPFOnAUVTargetPursuit:
         else:
             state_history = False
 
+
+        self.A_matrix_target = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])
         self.A_matrix_tracker = np.array([[0, 1], [1, 0]])
 
-        self.kine_target = kn.Kinematics(saturate=0, state_history=state_history, dt=dt)
-        self.pf_control_target = pf.Lapierre(some_path=path_target, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
+
+        self.kine_target0 = kn.Kinematics(saturate=0, state_history=state_history, dt=dt)
+        self.pf_control_target0 = pf.Lapierre(some_path=path_target0, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
+        self.cpf_control_target0 = cpf.CPFDiscreteControllerETC(num_auv=3, id=0, params=cpf_params_target, k_csi=cpf_params_target["k_csi0"], A_matrix=self.A_matrix_target, etc_type=etc_type, state_history=state_history, dt=dt)
+
+        self.kine_target1 = kn.Kinematics(saturate=0, state_history=state_history, dt=dt)
+        self.pf_control_target1 = pf.Lapierre(some_path=path_target1, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
+        self.cpf_control_target1 = cpf.CPFDiscreteControllerETC(num_auv=3, id=1, params=cpf_params_target, k_csi=cpf_params_target["k_csi1"], A_matrix=self.A_matrix_target, etc_type=etc_type, state_history=state_history, dt=dt)
+
+        self.kine_target2 = kn.Kinematics(saturate=0, state_history=state_history, dt=dt)
+        self.pf_control_target2 = pf.Lapierre(some_path=path_target2, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
+        self.cpf_control_target2 = cpf.CPFDiscreteControllerETC(num_auv=3, id=2, params=cpf_params_target, k_csi=cpf_params_target["k_csi2"], A_matrix=self.A_matrix_target, etc_type=etc_type, state_history=state_history, dt=dt)
+
         
         self.mpf_control_tracker0 = mpf.MovingPathFollowingTest(target_velocity="Multiple", saturate=0, state_history=state_history, dt=dt)
         self.pf_control_tracker0 = pf.Lapierre(some_path=path_tracker0, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
-        self.cpf_control_tracker0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params, k_csi=cpf_params["k_csi0"], A_matrix=self.A_matrix_tracker, etc_type="Time", state_history=state_history, dt=dt)
+        self.cpf_control_tracker0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params_tracker, k_csi=cpf_params_tracker["k_csi0"], A_matrix=self.A_matrix_tracker, etc_type="Time", state_history=state_history, dt=dt)
         self.rms_tracker0 = ekf.RangeMeasureSimulation(R=ekf_params["R_matrix"][0][0], sampling_period=2)
         self.ekf_tracker = ekf.ExtendedKalmanFilter(F_matrix=ekf_params["F_matrix"], Q_matrix=ekf_params["Q_matrix"], R_matrix=ekf_params["R_matrix"], dt=dt)
         
         self.mpf_control_tracker1 = mpf.MovingPathFollowingTest(target_velocity="Multiple", saturate=0, state_history=state_history, dt=dt)
         self.pf_control_tracker1 = pf.Lapierre(some_path=path_tracker1, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
-        self.cpf_control_tracker1 = cpf.CPFDiscreteControllerETC(num_auv=2, id=1, params=cpf_params, k_csi=cpf_params["k_csi1"], A_matrix=self.A_matrix_tracker, etc_type="Time", state_history=state_history, dt=dt)
+        self.cpf_control_tracker1 = cpf.CPFDiscreteControllerETC(num_auv=2, id=1, params=cpf_params_tracker, k_csi=cpf_params_tracker["k_csi1"], A_matrix=self.A_matrix_tracker, etc_type="Time", state_history=state_history, dt=dt)
         self.rms_tracker1 = ekf.RangeMeasureSimulation(R=ekf_params["R_matrix"][1][1], sampling_period=2)
 
     def update(self, t):
         # Get dictionaries setup
-        inputs_kine_target, outputs_kine_target = self.kine_target.inputs_outputs()
-        inputs_pf_target, outputs_pf_target = self.pf_control_target.inputs_outputs()
+        inputs_kine_target0, outputs_kine_target0 = self.kine_target0.inputs_outputs()
+        inputs_pf_target0, outputs_pf_target0 = self.pf_control_target0.inputs_outputs()
+        inputs_cpf_target0, outputs_cpf_target0 = self.cpf_control_target0.inputs_outputs()
+
+        inputs_kine_target1, outputs_kine_target1 = self.kine_target1.inputs_outputs()
+        inputs_pf_target1, outputs_pf_target1 = self.pf_control_target1.inputs_outputs()
+        inputs_cpf_target1, outputs_cpf_target1 = self.cpf_control_target1.inputs_outputs()
+
+        inputs_kine_target2, outputs_kine_target2 = self.kine_target2.inputs_outputs()
+        inputs_pf_target2, outputs_pf_target2 = self.pf_control_target2.inputs_outputs()
+        inputs_cpf_target2, outputs_cpf_target2 = self.cpf_control_target2.inputs_outputs()
+
 
         inputs_mpf_tracker0, outputs_mpf_tracker0 = self.mpf_control_tracker0.inputs_outputs()
         inputs_pf_tracker0, outputs_pf_tracker0 = self.pf_control_tracker0.inputs_outputs()
@@ -1414,6 +1452,11 @@ class DoubleASVMPFOnAUVTargetPursuit:
         inputs_mpf_tracker1, outputs_mpf_tracker1 = self.mpf_control_tracker1.inputs_outputs()
         inputs_pf_tracker1, outputs_pf_tracker1 = self.pf_control_tracker1.inputs_outputs()
         inputs_cpf_tracker1, outputs_cpf_tracker1 = self.cpf_control_tracker1.inputs_outputs()
+
+
+        self.cpf_control_target0.inputs["gamma0"] = outputs_pf_target0["s"]
+        self.cpf_control_target1.inputs["gamma1"] = outputs_pf_target1["s"]
+        self.cpf_control_target2.inputs["gamma2"] = outputs_pf_target2["s"]
 
         self.cpf_control_tracker0.inputs["gamma0"] = outputs_pf_tracker0["s"]
         self.cpf_control_tracker1.inputs["gamma1"] = outputs_pf_tracker1["s"]
@@ -1426,7 +1469,7 @@ class DoubleASVMPFOnAUVTargetPursuit:
         inputs_ekf_tracker["tracker_y1"] = outputs_mpf_tracker1["y"]
         tracker0_pos = np.array([outputs_mpf_tracker0["x"], outputs_mpf_tracker0["y"]])
         tracker1_pos = np.array([outputs_mpf_tracker1["x"], outputs_mpf_tracker1["y"]])
-        target_pos = np.array([outputs_kine_target["x"], outputs_kine_target["y"]])
+        target_pos = np.array([outputs_kine_target1["x"], outputs_kine_target1["y"]])
         y_k0 = self.rms_tracker0.measurement(t, tracker0_pos, target_pos)
         y_k1 = self.rms_tracker1.measurement(t, tracker1_pos, target_pos)
         if t < 150 or t > 200:
@@ -1441,6 +1484,26 @@ class DoubleASVMPFOnAUVTargetPursuit:
 
 
         # CPF ETC update
+        broadcast_target0 = self.cpf_control_target0.check_update(t)
+        if broadcast_target0 != -1:
+            self.cpf_control_target1.reset(broadcast_target0)
+            self.cpf_control_target2.reset(broadcast_target0)
+
+        broadcast_target1 = self.cpf_control_target1.check_update(t)
+        if broadcast_target1 != -1:
+            self.cpf_control_target0.reset(broadcast_target1)
+            self.cpf_control_target2.reset(broadcast_target1)
+
+        broadcast_target2 = self.cpf_control_target2.check_update(t)
+        if broadcast_target2 != -1:
+            self.cpf_control_target0.reset(broadcast_target2)
+            self.cpf_control_target1.reset(broadcast_target2)
+        
+        _, outputs_cpf_target0 = self.cpf_control_target0.inputs_outputs()
+        _, outputs_cpf_target1 = self.cpf_control_target1.inputs_outputs()
+        _, outputs_cpf_target2 = self.cpf_control_target2.inputs_outputs()
+
+
         broadcast_tracker0 = self.cpf_control_tracker0.check_update(t)
         if broadcast_tracker0 != -1:
             self.cpf_control_tracker1.reset(broadcast_tracker0)
@@ -1455,23 +1518,43 @@ class DoubleASVMPFOnAUVTargetPursuit:
 
         # Connection of variables
         # AUV Target
-        inputs_kine_target["u"] = outputs_pf_target["u"]
+        inputs_kine_target0["u"] = outputs_pf_target0["u"]
+        inputs_kine_target1["u"] = outputs_pf_target1["u"]
+        inputs_kine_target2["u"] = outputs_pf_target2["u"]
         if t < self.time_halted:
-            inputs_kine_target["velocity"] = 0.0
-            inputs_pf_target["velocity"] = 0.0
+            inputs_kine_target0["velocity"] = 0.0
+            inputs_pf_target0["velocity"] = 0.0
+            inputs_kine_target1["velocity"] = 0.0
+            inputs_pf_target1["velocity"] = 0.0
+            inputs_kine_target2["velocity"] = 0.0
+            inputs_pf_target2["velocity"] = 0.0
         else:
-            inputs_kine_target["velocity"] = 0.2
-            inputs_pf_target["velocity"] = 0.2
-        inputs_kine_target["velocity_dot"] = 0
+            inputs_kine_target0["velocity"] = outputs_cpf_target0["velocity"]
+            inputs_pf_target0["velocity"] = outputs_cpf_target0["velocity"]
+            inputs_kine_target1["velocity"] = outputs_cpf_target1["velocity"]
+            inputs_pf_target1["velocity"] = outputs_cpf_target1["velocity"]
+            inputs_kine_target2["velocity"] = outputs_cpf_target2["velocity"]
+            inputs_pf_target2["velocity"] = outputs_cpf_target2["velocity"]
+        inputs_kine_target0["velocity_dot"] = 0
+        inputs_kine_target1["velocity_dot"] = 0
+        inputs_kine_target2["velocity_dot"] = 0
         
-        inputs_pf_target["x"] = outputs_kine_target["x"]
-        inputs_pf_target["y"] = outputs_kine_target["y"]
-        inputs_pf_target["theta_m"] = outputs_kine_target["theta_m"]
+        inputs_pf_target0["x"] = outputs_kine_target0["x"]
+        inputs_pf_target0["y"] = outputs_kine_target0["y"]
+        inputs_pf_target0["theta_m"] = outputs_kine_target0["theta_m"]
+        inputs_pf_target1["x"] = outputs_kine_target1["x"]
+        inputs_pf_target1["y"] = outputs_kine_target1["y"]
+        inputs_pf_target1["theta_m"] = outputs_kine_target1["theta_m"]
+        inputs_pf_target2["x"] = outputs_kine_target2["x"]
+        inputs_pf_target2["y"] = outputs_kine_target2["y"]
+        inputs_pf_target2["theta_m"] = outputs_kine_target2["theta_m"]
         
-        inputs_pf_target["velocity_dot"] = 0
+        inputs_pf_target0["velocity_dot"] = 0
+        inputs_pf_target1["velocity_dot"] = 0
+        inputs_pf_target2["velocity_dot"] = 0
+
 
         # ASV
-        
         if t < self.time_halted:
             inputs_mpf_tracker0["target_x"] = -4.
             inputs_mpf_tracker0["target_y"] = -10.
@@ -1518,11 +1601,21 @@ class DoubleASVMPFOnAUVTargetPursuit:
 
 
         outputs = {}
-        outputs["x_target"] = outputs_kine_target["x"]
-        outputs["y_target"] = outputs_kine_target["y"]
-        outputs["theta_m_target"] = outputs_kine_target["theta_m"]
-        outputs["s_target"] = outputs_pf_target["s"]
-        outputs["u_target"] = outputs_pf_target["u"]
+        outputs["x_target0"] = outputs_kine_target0["x"]
+        outputs["y_target0"] = outputs_kine_target0["y"]
+        outputs["theta_m_target0"] = outputs_kine_target0["theta_m"]
+        outputs["s_target0"] = outputs_pf_target0["s"]
+        outputs["u_target0"] = outputs_pf_target0["u"]
+        outputs["x_target1"] = outputs_kine_target1["x"]
+        outputs["y_target1"] = outputs_kine_target1["y"]
+        outputs["theta_m_target1"] = outputs_kine_target1["theta_m"]
+        outputs["s_target1"] = outputs_pf_target1["s"]
+        outputs["u_target1"] = outputs_pf_target1["u"]
+        outputs["x_target2"] = outputs_kine_target2["x"]
+        outputs["y_target2"] = outputs_kine_target2["y"]
+        outputs["theta_m_target2"] = outputs_kine_target2["theta_m"]
+        outputs["s_target2"] = outputs_pf_target2["s"]
+        outputs["u_target2"] = outputs_pf_target2["u"]
         outputs["x_tracker0"] = outputs_mpf_tracker0["x"]
         outputs["y_tracker0"] = outputs_mpf_tracker0["y"]
         outputs["theta_m_tracker0"] = outputs_mpf_tracker0["theta_m"]
@@ -1534,9 +1627,13 @@ class DoubleASVMPFOnAUVTargetPursuit:
         outputs["s_tracker1"] = outputs_pf_tracker1["s"]
         outputs["u_tracker1"] = outputs_pf_tracker1["u"]
         if t < self.time_halted:
-            outputs["velocity_target"] = 0
+            outputs["velocity_target0"] = 0
+            outputs["velocity_target1"] = 0
+            outputs["velocity_target2"] = 0
         else:
-            outputs["velocity_target"] = 0.2
+            outputs["velocity_target0"] = outputs_cpf_target0["velocity"]
+            outputs["velocity_target1"] = outputs_cpf_target1["velocity"]
+            outputs["velocity_target2"] = outputs_cpf_target2["velocity"]
         outputs["velocity_tracker0"] = outputs_cpf_tracker0["velocity"]
         outputs["velocity_tracker1"] = outputs_cpf_tracker1["velocity"]
         outputs["x_ekf"] = outputs_ekf_tracker["x"]
@@ -1557,8 +1654,18 @@ class DoubleASVMPFOnAUVTargetPursuit:
 
 
         # Update the system
-        self.kine_target.auv_update(inputs_kine_target, dt=self.dt)
-        self.pf_control_target.pf_update(inputs_pf_target, dt=self.dt)
+        self.kine_target0.auv_update(inputs_kine_target0, dt=self.dt)
+        self.pf_control_target0.pf_update(inputs_pf_target0, dt=self.dt)
+        self.cpf_control_target0.cpf_update(dt=self.dt)
+
+        self.kine_target1.auv_update(inputs_kine_target1, dt=self.dt)
+        self.pf_control_target1.pf_update(inputs_pf_target1, dt=self.dt)
+        self.cpf_control_target1.cpf_update(dt=self.dt)
+
+        self.kine_target2.auv_update(inputs_kine_target2, dt=self.dt)
+        self.pf_control_target2.pf_update(inputs_pf_target2, dt=self.dt)
+        self.cpf_control_target2.cpf_update(dt=self.dt)
+
 
         self.mpf_control_tracker0.mpf_update(inputs_mpf_tracker0, dt=self.dt)
         self.pf_control_tracker0.pf_update(inputs_pf_tracker0, dt=self.dt)
@@ -1571,14 +1678,26 @@ class DoubleASVMPFOnAUVTargetPursuit:
         return outputs
 
     def set_initial_conditions(self, init_cond):
-        self.kine_target.set_initial_conditions(init_cond["x_target"], init_cond["y_target"], init_cond["theta_m_target"])
-        self.pf_control_target.set_initial_conditions(init_cond["s_target"])
+        self.kine_target0.set_initial_conditions(init_cond["x_target0"], init_cond["y_target0"], init_cond["theta_m_target0"])
+        self.pf_control_target0.set_initial_conditions(init_cond["s_target0"])
 
-        ry0 = self.mpf_control_tracker0.reference_yaw(init_cond["theta_m_follower0"], init_cond["theta_m_target"])
+        self.kine_target1.set_initial_conditions(init_cond["x_target1"], init_cond["y_target1"], init_cond["theta_m_target1"])
+        self.pf_control_target1.set_initial_conditions(init_cond["s_target1"])
+
+        self.kine_target2.set_initial_conditions(init_cond["x_target2"], init_cond["y_target2"], init_cond["theta_m_target2"])
+        self.pf_control_target2.set_initial_conditions(init_cond["s_target2"])
+
+        gammas_target = {"gamma0": init_cond["s_target0"], "gamma1": init_cond["s_target1"], "gamma2": init_cond["s_target2"]}
+        self.cpf_control_target0.set_initial_conditions(gammas_target)
+        self.cpf_control_target1.set_initial_conditions(gammas_target)
+        self.cpf_control_target2.set_initial_conditions(gammas_target)
+
+
+        ry0 = self.mpf_control_tracker0.reference_yaw(init_cond["theta_m_follower0"], init_cond["theta_m_target1"])
         self.mpf_control_tracker0.set_initial_conditions(init_cond["x_follower0"], init_cond["y_follower0"], ry0)
         self.pf_control_tracker0.set_initial_conditions(init_cond["s_follower0"])
 
-        ry1 = self.mpf_control_tracker1.reference_yaw(init_cond["theta_m_follower1"], init_cond["theta_m_target"])
+        ry1 = self.mpf_control_tracker1.reference_yaw(init_cond["theta_m_follower1"], init_cond["theta_m_target1"])
         self.mpf_control_tracker1.set_initial_conditions(init_cond["x_follower1"], init_cond["y_follower1"], ry1)
         self.pf_control_tracker1.set_initial_conditions(init_cond["s_follower1"])
 
@@ -1587,8 +1706,8 @@ class DoubleASVMPFOnAUVTargetPursuit:
         self.cpf_control_tracker1.set_initial_conditions(gammas_tracker)
 
         ic_ekf = {
-            "x": init_cond["x_target"],
-            "y": init_cond["y_target"],
+            "x": init_cond["x_target1"],
+            "y": init_cond["y_target1"],
             "x_dot": 0,
             "y_dot": 0
         }
@@ -1597,11 +1716,20 @@ class DoubleASVMPFOnAUVTargetPursuit:
     def past_values(self):
         return (
             self.past_outputs,
-            self.kine_target.past_state,
-            self.pf_control_target.past_state,
+            self.kine_target0.past_state,
+            self.pf_control_target0.past_state,
+            self.cpf_control_target0.past_state,
+            self.kine_target1.past_state,
+            self.pf_control_target1.past_state,
+            self.cpf_control_target1.past_state,
+            self.kine_target2.past_state,
+            self.pf_control_target2.past_state,
+            self.cpf_control_target2.past_state,
             self.mpf_control_tracker0.past_state,
             self.pf_control_tracker0.past_state,
+            self.cpf_control_tracker0.past_state,
             self.mpf_control_tracker1.past_state,
             self.pf_control_tracker1.past_state,
+            self.cpf_control_tracker1.past_state,
             self.ekf_tracker.past_state
         )

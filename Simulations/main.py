@@ -21,4 +21,4 @@ import libct.simulation1 as ct_sim1
 
 
 if __name__ == '__main__':
-    sim7.run_simulation()
+    sim8.run_simulation()
