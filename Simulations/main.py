@@ -17,8 +17,9 @@ import lib.simulation5 as sim5
 import lib.simulation6 as sim6
 import lib.simulation7 as sim7
 import lib.simulation8 as sim8
+import lib.simulation9 as sim9
 import libct.simulation1 as ct_sim1
 
 
 if __name__ == '__main__':
-    sim8.run_simulation()
+    sim9.run_simulation()

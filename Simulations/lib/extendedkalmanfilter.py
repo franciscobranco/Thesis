@@ -124,15 +124,19 @@ class ExtendedKalmanFilter:
                 C_k[i][1] = (self.state["y"] - self.inputs["tracker_y" + str(i)]) / d_k[i]
                 C_k[i][2] = 0
                 C_k[i][3] = 0
-                ranges[i] = self.inputs["range" + str(i)]
+                if self.inputs["range" + str(i)] != None:
+                    ranges[i] = self.inputs["range" + str(i)]
+                else:
+                    ranges[i] = -1
             
             K_k = np.matmul(self.P_apriori, (np.matmul(C_k.T, np.linalg.inv(np.matmul(C_k, np.matmul(self.P_apriori, C_k.T)) + self.R_matrix))))
             for i in range(self.R_matrix.shape[0]):
-                if self.inputs["range" + str(i)] < 0:
+                if ranges[i] < 0:
                     K_k[0][i] = 0
                     K_k[1][i] = 0
                     K_k[2][i] = 0
                     K_k[3][i] = 0
+                    
             
             state = state + np.matmul(K_k, (ranges - d_k))
             self.P_aposteriori = np.matmul(np.identity(4) - np.matmul(K_k, C_k), self.P_apriori)
@@ -141,12 +145,16 @@ class ExtendedKalmanFilter:
             C_k = np.array([(self.state["x"] - self.inputs["tracker_x0"]) / d_k, (self.state["y"] - self.inputs["tracker_y0"]) / d_k, 0, 0])
             K_k = np.matmul(self.P_apriori, (C_k.T * np.power(np.matmul(C_k, np.matmul(self.P_apriori, C_k.T)) + self.R_matrix, -1)))# self.P_apriori.dot(C_k.T.dot(np.power(C_k.dot(self.P_apriori.dot(C_k.T)) + self.R_matrix, -1)))
 
-            ranges = self.inputs["range0"]
-            if self.inputs["range0"] < 0:
+            
+            if self.inputs["range0"] == None:
                 K_k[0] = 0
                 K_k[1] = 0
                 K_k[2] = 0
                 K_k[3] = 0
+
+                ranges = -1
+            else:
+                ranges = self.inputs["range0"]
 
             state = state + K_k * (ranges - d_k)
             self.P_aposteriori = np.matmul(np.identity(4) - np.outer(K_k, C_k), self.P_apriori)
@@ -193,7 +201,7 @@ class RangeMeasureSimulation:
             self.last_time = current_time
             y_k = self.distance(tracker, target) + np.random.normal(0, self.R)
         else:
-            y_k = -1
+            y_k = None
         return y_k
 
     def distance(self, tracker, target):

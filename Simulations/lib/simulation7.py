@@ -274,7 +274,7 @@ def run_simulation():
             measurements = [[], []]
             # Range-measurement plot
             for j in range(i):
-                if all_outputs["range"][j] >= 0:
+                if all_outputs["range"][j] != None:
                     measurements[0].append(T[j])
                     measurements[1].append(all_outputs["range"][j])
             ax1[0][1].plot(measurements[0], measurements[1])

@@ -1,8 +1,8 @@
 """
 
 Author: Francisco Branco
-Created: 17/02/2022
-Description: Two ASVs target pursuit with double range measurement example
+Created: 12/04/2022
+Description: Two ASVs target pursuit with double range measurement example and complementary filter compensation
 
 """
 
@@ -59,7 +59,7 @@ def run_simulation():
 
     # Time parameters
     total_time = 500
-    num_points = 10000
+    num_points = total_time * 20
     T, dt = np.linspace(start=0, stop=total_time, num=num_points, retstep=True)
     
     # Vehicle initial conditions
@@ -132,21 +132,34 @@ def run_simulation():
         "R_matrix": R_matrix
     }
 
+    H_matrix = np.array([[1, 0],
+                         [0, 1],
+                         [1, 0],
+                         [0, 1]])
+
+    doppler_var = 0.1#np.array([[0.01, 0], [0, 0.01]])
+
+    cf_params = {
+        "H_matrix": H_matrix,
+        "doppler_var": doppler_var
+    }
+
     # Amount of time in seconds the target is not moving at the beginning
     time_halted = 0
 
 
     # System creation along with initial conditions
-    auv_system = sb.DoubleASVMPFOnAUVTargetPursuit(
-        p_target0,
+    auv_system = sb.DoubleASVMPFOnAUVTargetPursuitCF(
+        # p_target0,
         p_target1,
-        p_target2,
+        # p_target2,
         p_tracker0,
         p_tracker1,
         pf_params=pf_params,
         cpf_params_target=cpf_params_target,
         cpf_params_tracker=cpf_params_tracker,
         ekf_params=ekf_params,
+        cf_params=cf_params,
         time_halted=time_halted,
         etc_type="Time",
         history=True,
@@ -154,18 +167,18 @@ def run_simulation():
     )
 
     ic = {
-        "x_target0": -4.0,
-        "y_target0": -10.0,
-        "theta_m_target0": theta_m,
-        "s_target0": s,
+        # "x_target0": -4.0,
+        # "y_target0": -10.0,
+        # "theta_m_target0": theta_m,
+        # "s_target0": s,
         "x_target1": -2.0,
         "y_target1": -10.0,
         "theta_m_target1": theta_m,
         "s_target1": s,
-        "x_target2": 0.0,
-        "y_target2": -10.0,
-        "theta_m_target2": theta_m,
-        "s_target2": s,
+        # "x_target2": 0.0,
+        # "y_target2": -10.0,
+        # "theta_m_target2": theta_m,
+        # "s_target2": s,
         "x_follower0": 0.0,
         "y_follower0": -12.0,
         "theta_m_follower0": theta_m,
@@ -183,10 +196,11 @@ def run_simulation():
         #input()
 
     # Get past values for plotting
-    all_outputs, _, pf_target0, cpf_target0, _, pf_target1, cpf_target1, _, pf_target2, cpf_target2, _, pf_tracker0, cpf_tracker0, _, pf_tracker1, cpf_tracker1, ekf_tracker = auv_system.past_values()
-    
+    #all_outputs, _, pf_target0, cpf_target0, cf_target0, _, pf_target1, cpf_target1, cf_target1, _, pf_target2, cpf_target2, cf_target2, _, pf_tracker0, cpf_tracker0, _, pf_tracker1, cpf_tracker1, ekf_tracker = auv_system.past_values()
+    all_outputs, _, pf_target1, cf_target1, _, pf_tracker0, cpf_tracker0, _, pf_tracker1, cpf_tracker1, ekf_tracker = auv_system.past_values()
 
-    print("Broadcasts: " + str(len(cpf_target0["broadcasts"]) + len(cpf_target1["broadcasts"]) + len(cpf_target2["broadcasts"]) + len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
+    #print("Broadcasts: " + str(len(cpf_target0["broadcasts"]) + len(cpf_target1["broadcasts"]) + len(cpf_target2["broadcasts"]) + len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
+    print("Broadcasts: " + str(len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
 
 
     # Start plotting
@@ -196,10 +210,10 @@ def run_simulation():
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()
 
-    frame_rate = num_points / total_time
+    frame_rate = num_points / total_time * 8
     
     
-    
+    """
     p_target0.plot_path(ax1[0][0])
     p_target1.plot_path(ax1[0][0])
     p_target2.plot_path(ax1[0][0])
@@ -250,10 +264,10 @@ def run_simulation():
     measurements0 = [[], []]
     measurements1 = [[], []]
     for j in range(len(T)):
-        if all_outputs["range0"][j] != None:
+        if all_outputs["range0"][j] >= 0:
             measurements0[0].append(T[j])
             measurements0[1].append(all_outputs["range0"][j])
-        if all_outputs["range1"][j] != None:
+        if all_outputs["range1"][j] >= 0:
             measurements1[0].append(T[j])
             measurements1[1].append(all_outputs["range1"][j])
     ax1[0][1].plot(measurements0[0], measurements0[1], color='magenta', linestyle='-')
@@ -313,13 +327,23 @@ def run_simulation():
                 ax1[0][2].cla()
                 ax1[1][2].cla()
 
-            p_target0.plot_path(ax1[0][0])
+            # p_target0.plot_path(ax1[0][0])
             p_target1.plot_path(ax1[0][0])
-            p_target2.plot_path(ax1[0][0])
+            # p_target2.plot_path(ax1[0][0])
 
-            ax1[0][0].plot(all_outputs["x_target0"][i], all_outputs["y_target0"][i], color='tab:blue', marker='o')
+            # ax1[0][0].plot(all_outputs["x_target0"][i], all_outputs["y_target0"][i], color='tab:blue', marker='o')
             ax1[0][0].plot(all_outputs["x_target1"][i], all_outputs["y_target1"][i], color='tab:orange', marker='o')
-            ax1[0][0].plot(all_outputs["x_target2"][i], all_outputs["y_target2"][i], color='tab:green', marker='o')
+            # ax1[0][0].plot(all_outputs["x_target2"][i], all_outputs["y_target2"][i], color='tab:green', marker='o')
+            # ax1[0][0].plot(all_outputs["x_target0"][:i], all_outputs["y_target0"][:i], color='tab:blue', linestyle='--')
+            ax1[0][0].plot(all_outputs["x_target1"][:i], all_outputs["y_target1"][:i], color='tab:orange', linestyle='--', label='_nolegend_')
+            # ax1[0][0].plot(all_outputs["x_target2"][:i], all_outputs["y_target2"][:i], color='tab:green', linestyle='--')
+
+            # ax1[0][0].plot(all_outputs["x_pred_target0"][i], all_outputs["y_pred_target0"][i], color='tab:cyan', marker='o')
+            ax1[0][0].plot(all_outputs["x_pred_target1"][i], all_outputs["y_pred_target1"][i], color='tab:gray', marker='o')
+            # ax1[0][0].plot(all_outputs["x_pred_target2"][i], all_outputs["y_pred_target2"][i], color='tab:olive', marker='o')
+            # ax1[0][0].plot(all_outputs["x_pred_target0"][:i], all_outputs["y_pred_target0"][:i], color='tab:cyan', linestyle='--')
+            ax1[0][0].plot(all_outputs["x_pred_target1"][:i], all_outputs["y_pred_target1"][:i], color='tab:gray', linestyle='--', label='_nolegend_')
+            # ax1[0][0].plot(all_outputs["x_pred_target2"][:i], all_outputs["y_pred_target2"][:i], color='tab:olive', linestyle='--')
 
             p_r = pg.Path()
             circle_r = pg.Circle(resolution, np.array([all_outputs["x_target1"][i], all_outputs["y_target1"][i]]), all_outputs["theta_m_target1"][i], arc_tracker, radius_tracker, start_tracker)
@@ -331,9 +355,9 @@ def run_simulation():
             ax1[0][0].plot(all_outputs["x_tracker1"][i], all_outputs["y_tracker1"][i], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][i] / (2*pi) - 90), markersize=10)
             ax1[0][0].plot(all_outputs["x_ekf"][i], all_outputs["y_ekf"][i], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf"][i] / (2*pi) - 90), markersize=10)
             
-            ax1[0][0].plot(all_outputs["x_tracker0"][:i], all_outputs["y_tracker0"][:i], color='magenta', linestyle='--')
-            ax1[0][0].plot(all_outputs["x_tracker1"][:i], all_outputs["y_tracker1"][:i], color='red', linestyle='--')
-            ax1[0][0].plot(all_outputs["x_ekf"][:i], all_outputs["y_ekf"][:i], color='purple', linestyle='--')
+            #ax1[0][0].plot(all_outputs["x_tracker0"][:i], all_outputs["y_tracker0"][:i], color='magenta', linestyle='--')
+            #ax1[0][0].plot(all_outputs["x_tracker1"][:i], all_outputs["y_tracker1"][:i], color='red', linestyle='--')
+            #ax1[0][0].plot(all_outputs["x_ekf"][:i], all_outputs["y_ekf"][:i], color='purple', linestyle='--')
 
             # Plot the virtual target
             #X0, Y0 = p_target.get_xy(all_outputs["s0"][i])
@@ -342,7 +366,19 @@ def run_simulation():
             
             
             #ax1[0][0].plot(X1, Y1, 'go')
-            ax1[0][0].legend(['target path0', 'target path1', 'target path2', 'target0', 'target1', 'target2', 'moving path', 'tracker0', 'tracker1', 'estimate'], bbox_to_anchor=(0.75, 0.75))
+            ax1[0][0].legend([
+                # 'target path0',
+                'target path1',
+                # 'target path2',
+                # 'target0',
+                'target1',
+                'target1 prediction',
+                # 'target2',
+                'moving path',
+                'tracker0',
+                'tracker1',
+                'EKF estimate'],
+                bbox_to_anchor=(0.75, 0.75))
 
 
             # Labels and grid
@@ -354,15 +390,20 @@ def run_simulation():
 
             # Velocity plot
             ax1[1][0].set_title('Velocity plot')
-            ax1[1][0].plot(T[:i], all_outputs["velocity_target0"][:i])
+            #ax1[1][0].plot(T[:i], all_outputs["velocity_target0"][:i])
             ax1[1][0].plot(T[:i], all_outputs["velocity_target1"][:i])
-            ax1[1][0].plot(T[:i], all_outputs["velocity_target2"][:i])
+            #ax1[1][0].plot(T[:i], all_outputs["velocity_target2"][:i])
             ax1[1][0].plot(T[:i], all_outputs["velocity_tracker0"][:i], color='magenta', linestyle='-')
             ax1[1][0].plot(T[:i], all_outputs["velocity_tracker1"][:i], color='red', linestyle='-')
             #ax1[1].set_ylim([0.98, 1.02])
             ax1[1][0].set_xlabel('time [s]')
             ax1[1][0].set_ylabel('Velocity [m/s]')
-            ax1[1][0].legend(['target0', 'target1', 'target2', 'tracker0', 'tracker1'])
+            ax1[1][0].legend([
+                # 'target0',
+                'target1',
+                # 'target2',
+                'tracker0',
+                'tracker1'])
             ax1[1][0].grid()
 
 
@@ -420,13 +461,18 @@ def run_simulation():
             
             # Lapierre output u plot
             ax1[1][2].set_title('Lapierre output u')
-            ax1[1][2].plot(T[:i], all_outputs["u_target0"][:i])
+            # ax1[1][2].plot(T[:i], all_outputs["u_target0"][:i])
             ax1[1][2].plot(T[:i], all_outputs["u_target1"][:i])
-            ax1[1][2].plot(T[:i], all_outputs["u_target2"][:i])
+            # ax1[1][2].plot(T[:i], all_outputs["u_target2"][:i])
             ax1[1][2].plot(T[:i], all_outputs["u_tracker0"][:i], color='magenta', linestyle='-')
             ax1[1][2].plot(T[:i], all_outputs["u_tracker1"][:i], color='red', linestyle='-')
             ax1[1][2].grid()
-            ax1[1][2].legend(['target0', 'target1', 'target2', 'tracker0', 'tracker1'])
+            ax1[1][2].legend([
+                # 'target0',
+                'target1',
+                # 'target2',
+                'tracker0',
+                'tracker1'])
 
 
             
@@ -436,4 +482,4 @@ def run_simulation():
             
     plt.pause(100)
 
-    """
+    
