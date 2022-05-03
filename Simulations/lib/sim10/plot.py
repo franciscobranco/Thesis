@@ -1,8 +1,8 @@
 """
 
 Author: Francisco Branco
-Created: 12/04/2022
-Description: Two ASVs target pursuit with double range measurement example and complementary filter compensation
+Created: 02/05/2022
+Description: Two ASVs target pursuit with double range measurement example and complementary Kalman filter compensation
 
 """
 
@@ -16,192 +16,11 @@ import pathgeneration as pg
 import lib.systembuild as sb
 
 
-def run_simulation():
-    # Path parameters
-    resolution = 40
+def plot(paths, num_points, total_time, resolution, T, past_values):
+    p_target1 = paths["p_target1"]
 
-    start_target = 0.0
-    position_target = np.array([0.0, 0.0])
-    orientation_target = -pi/2#0.0
-    size_target = 20.0
-    arc_target = 2*pi
-    radius_target = size_target
-
-    start_tracker = 0.0
-    position_tracker = np.array([0.0, 0.0])
-    orientation_tracker = -pi/2
-    size_tracker = 7.0
-    arc_tracker = 2*pi
-    radius_tracker = size_tracker
-
-    # Path creation
-    p_target0 = pg.Path()
-    circle_target0 = pg.Circle(resolution, position_target, orientation_target, arc_target, radius_target - 5.0, start_target)
-    p_target0.append_path(circle_target0)
-
-    p_target1 = pg.Path()
-    circle_target1 = pg.Circle(resolution, position_target, orientation_target, arc_target, radius_target, start_target)
-    p_target1.append_path(circle_target1)
-
-    p_target2 = pg.Path()
-    circle_target2 = pg.Circle(resolution, position_target, orientation_target, arc_target, radius_target + 5.0, start_target)
-    p_target2.append_path(circle_target2)
-
-
-    p_tracker0 = pg.Path()
-    circle_tracker0 = pg.Circle(resolution, position_tracker, 0, arc_tracker, radius_tracker, start_tracker)
-    p_tracker0.append_path(circle_tracker0)
-
-    p_tracker1 = pg.Path()
-    circle_tracker1 = pg.Circle(resolution, position_tracker, orientation_tracker, arc_tracker, radius_tracker, start_tracker)
-    p_tracker1.append_path(circle_tracker1)
-
-
-    # Time parameters
-    total_time = 600
-    num_points = total_time * 20
-    T, dt = np.linspace(start=0, stop=total_time, num=num_points, retstep=True)
-    
-    # Vehicle initial conditions
-    x = -10.0
-    y = -10.0
-    theta_m = 0.0
-    s = 0.0
-
-    pf_params = {
-        "gamma": 1.0,
-        "k1": 1.0,
-        "k2": 0.3,
-        "k_delta": 1.0,
-        "theta_a": 0.8
-    }
-
-    cpf_params_target = {
-        "c0": 0.01, #0.01
-        "c1": 0.5, #0.5
-        "c2": 1, #1
-        "l": 1,
-        "k": 1.1584,
-        "epsilon": 0.1,
-        "epsilon0": np.power(10.0, -4),
-        "theta": 0.99,
-        "k_csi0": 0.25,
-        "k_csi1": 0.25,
-        "k_csi2": 0.25,
-        "norm0": p_target0.total_distance,
-        "norm1": p_target1.total_distance,
-        "norm2": p_target2.total_distance,
-        "speed_profile0": p_target0.total_distance / (p_target2.total_distance / 0.2),
-        "speed_profile1": p_target1.total_distance / (p_target2.total_distance / 0.2),
-        "speed_profile2": 0.2
-    }
-
-    cpf_params_tracker = {
-        "c0": 0.01, #0.01
-        "c1": 0.5, #0.5
-        "c2": 1, #1
-        "l": 1,
-        "k": 1.1584,
-        "epsilon": 0.1,
-        "epsilon0": np.power(10.0, -4),
-        "theta": 0.99,
-        "k_csi0": 0.5,
-        "k_csi1": 0.5,
-        "norm0": p_tracker0.total_distance,
-        "norm1": p_tracker1.total_distance,
-        "speed_profile0": 0.7,
-        "speed_profile1": 0.7
-    }
-
-    # EKF parameters
-    F_matrix = np.array([[1, 0, dt, 0],
-                         [0, 1, 0, dt],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]])
-    
-    Q_matrix = 10 * np.exp(-6) * np.array([[10, 0, 0, 0],
-                                           [0, 10, 0, 0],
-                                           [0, 0, 1, 0],
-                                           [0, 0, 0, 1]])
-
-    R_matrix = np.array([[0.01, 0], [0, 0.01]])
-
-    ekf_params = {
-        "F_matrix": F_matrix,
-        "Q_matrix": Q_matrix,
-        "R_matrix": R_matrix
-    }
-
-    damp = 1
-    wn = 1
-    k1 = 2 * damp * wn
-    k2 = np.power(wn, 2)
-    H_matrix = np.array([[k1, 0],
-                         [0, k1],
-                         [k2, 0],
-                         [0, k2]])
-
-    doppler_var = 0.1#np.array([[0.01, 0], [0, 0.01]])
-
-    cf_params = {
-        "H_matrix": H_matrix,
-        "doppler_var": doppler_var
-    }
-
-    # Amount of time in seconds the target is not moving at the beginning
-    time_halted = 0
-
-
-    # System creation along with initial conditions
-    auv_system = sb.DoubleASVMPFOnAUVTargetPursuitCF(
-        # p_target0,
-        p_target1,
-        # p_target2,
-        p_tracker0,
-        p_tracker1,
-        pf_params=pf_params,
-        cpf_params_target=cpf_params_target,
-        cpf_params_tracker=cpf_params_tracker,
-        ekf_params=ekf_params,
-        cf_params=cf_params,
-        time_halted=time_halted,
-        etc_type="Time",
-        history=True,
-        dt=dt
-    )
-
-    ic = {
-        # "x_target0": -4.0,
-        # "y_target0": -10.0,
-        # "theta_m_target0": theta_m,
-        # "s_target0": s,
-        "x_target1": -2.0,
-        "y_target1": -10.0,
-        "theta_m_target1": theta_m,
-        "s_target1": s,
-        # "x_target2": 0.0,
-        # "y_target2": -10.0,
-        # "theta_m_target2": theta_m,
-        # "s_target2": s,
-        "x_follower0": 0.0,
-        "y_follower0": -12.0,
-        "theta_m_follower0": theta_m,
-        "s_follower0": s,
-        "x_follower1": -1.0,
-        "y_follower1": -14.0,
-        "theta_m_follower1": theta_m,
-        "s_follower1": s
-    }
-    auv_system.set_initial_conditions(ic)
-
-    # Run the system
-    for t in T:
-        auv_system.update(t)
-        #input()
-
-    # Get past values for plotting
-    #all_outputs, _, pf_target0, cpf_target0, cf_target0, _, pf_target1, cpf_target1, cf_target1, _, pf_target2, cpf_target2, cf_target2, _, pf_tracker0, cpf_tracker0, _, pf_tracker1, cpf_tracker1, ekf_tracker = auv_system.past_values()
-    all_outputs, _, pf_target1, cf_target1, _, pf_tracker0, cpf_tracker0, _, pf_tracker1, cpf_tracker1, ekf_tracker = auv_system.past_values()
+    # Plotting
+    all_outputs, _, pf_target1, cf_target1, _, pf_tracker0, cpf_tracker0, _, pf_tracker1, cpf_tracker1, ekf_tracker = past_values
 
     #print("Broadcasts: " + str(len(cpf_target0["broadcasts"]) + len(cpf_target1["broadcasts"]) + len(cpf_target2["broadcasts"]) + len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
     print("Broadcasts: " + str(len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
@@ -350,7 +169,7 @@ def run_simulation():
             # ax1[0][0].plot(all_outputs["x_pred_target2"][:i], all_outputs["y_pred_target2"][:i], color='tab:olive', linestyle='--')
 
             p_r = pg.Path()
-            circle_r = pg.Circle(resolution, np.array([all_outputs["x_target1"][i], all_outputs["y_target1"][i]]), all_outputs["theta_m_target1"][i], arc_tracker, radius_tracker, start_tracker)
+            circle_r = pg.Circle(resolution, np.array([all_outputs["x_target1"][i], all_outputs["y_target1"][i]]), all_outputs["theta_m_target1"][i], paths["p_tracker0"].path_list[0].arc, paths["p_tracker0"].path_list[0].radius, paths["p_tracker0"].path_list[0].start)
             p_r.append_path(circle_r)
             p_r.plot_path(ax1[0][0])
 
@@ -454,11 +273,11 @@ def run_simulation():
             #ax1[3].set_ylabel('Angle [radians]')
             #ax1[3].grid()
             
-            # Tracker position and prediciton plot
+            # Target position and prediciton plot
             position_error = []
             for j in range(i):
                 position_error.append(np.sqrt(np.power(all_outputs["x_target1"][j] - all_outputs["x_pred_target1"][j], 2) + np.power(all_outputs["y_target1"][j] - all_outputs["y_pred_target1"][j], 2)))
-            ax1[0][2].set_title('Trackers\' Position')
+            ax1[0][2].set_title('Targets\' Position Error Distance')
             ax1[0][2].plot(T[:i], position_error)
             #ax1[0][2].plot(T[:i], pf_tracker0["s1_geo"][:i])
             #ax1[0][2].plot(T[:i], pf_tracker1["y1_geo"][:i])

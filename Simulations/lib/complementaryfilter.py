@@ -60,8 +60,6 @@ class ComplementaryFilter:
                       self.state["vcy_pred"]])
 
         outputs = np.matmul(self.C_matrix, x)
-        #print(x)
-        #print(outputs)
 
         return outputs
 
@@ -97,15 +95,10 @@ class ComplementaryFilter:
 
         outputs = self.outputs()
 
-        # print(self.inputs["vx_dop"])
-
-        x_dot = np.matmul(self.A_matrix, x) + np.matmul(self.B_matrix, u) + np.matmul(self.H_matrix, measure - outputs)
-        # print("measure ", measure)
-        # print("outputs ", outputs)
-        # print("difference ", measure - outputs)
-        # print("H_matrix result ", np.matmul(self.H_matrix, measure - outputs))
-        # print("x ", x)
-        # print("x_dot ", x_dot)
+        if inputs["x_EKF"] == None:
+            x_dot = np.matmul(self.A_matrix, x) + np.matmul(self.B_matrix, u)
+        else:
+            x_dot = np.matmul(self.A_matrix, x) + np.matmul(self.B_matrix, u) + np.matmul(self.H_matrix, measure - outputs)
 
         i = 0
         for key in self.state.keys():
@@ -135,3 +128,129 @@ class DopplerMeasureSimulation:
         else:
             v_w = [None, None]
         return v_w
+
+
+
+
+
+
+
+class ComplementaryKalmanFilter:
+    def __init__(self, A_matrix=None, B_matrix=None, C_matrix=None, Q_matrix=None, Dopvar=None, state_history=False, dt=1):
+        self.dt = dt
+        if A_matrix is None:
+            self.A_matrix = np.array([[1, 0, dt, 0],
+                                      [0, 1, 0, dt],
+                                      [0, 0, 1, 0],
+                                      [0, 0, 0, 1]])
+        else:
+            self.A_matrix = A_matrix
+        if B_matrix is None:
+            self.B_matrix = np.array([[dt, 0],
+                                      [0, dt],
+                                      [0, 0],
+                                      [0, 0]])
+        else:
+            self.B_matrix = B_matrix
+        if C_matrix is None:
+            self.C_matrix = np.array([[1, 0, 0, 0],
+                                      [0, 1, 0, 0]])
+        else:
+            self.C_matrix = C_matrix
+        if Q_matrix is None:
+            self.Q_matrix = 10 * np.exp(-6) * np.array([[10, 0, 0, 0],
+                                                        [0, 10, 0, 0],
+                                                        [0, 0, 1, 0],
+                                                        [0, 0, 0, 1]])
+        else:
+            self.Q_matrix = Q_matrix
+        if Dopvar is None:
+            self.Dopvar_matrix = np.array([[0.1, 0, 0, 0],
+                                           [0, 0.1, 0, 0],
+                                           [0, 0, 0, 0],
+                                           [0, 0, 0, 0]])
+        else:
+            self.Dopvar_matrix = np.array([[Dopvar, 0, 0, 0],
+                                           [0, Dopvar, 0, 0],
+                                           [0, 0, 0, 0],
+                                           [0, 0, 0, 0]])
+
+        self.P_aposteriori = np.zeros((4, 4))
+
+        self.state = {
+            "x": 0,
+            "y": 0,
+            "vc_x": 0,
+            "vc_y": 0
+        }
+        
+        self.inputs = {
+            "vx_dop": 0,
+            "vy_dop": 0,
+            "x_EKF": 0,
+            "y_EKF": 0,
+            "R": None
+        }
+
+        if state_history:
+            self.past_state = self.state.copy()
+            for key in self.past_state.keys():
+                self.past_state[key] = []
+
+    def set_initial_conditions(self, ic):
+        for key in self.state.keys():
+            self.state[key] = ic[key]
+
+    def inputs_outputs(self):
+        outputs = {"x": self.state["x"], "y": self.state["y"]}
+        return self.inputs.copy(), outputs
+
+    def ckf_update(self, inputs, t):
+        for input in self.inputs.keys():
+            self.inputs[input] = inputs[input]
+
+        self.prediction()
+        self.update()
+
+        for state in self.state.keys():
+            self.past_state[state].append(self.state[state])
+
+    def prediction(self):
+        vel_m = np.array([self.inputs["vx_dop"], self.inputs["vy_dop"]])
+        state = np.array([self.state["x"], self.state["y"], self.state["vc_x"], self.state["vc_y"]])
+        state = np.matmul(self.A_matrix, state.T) + np.matmul(self.B_matrix, vel_m)
+        
+        self.state["x"] = state[0]
+        self.state["y"] = state[1]
+        self.state["vc_x"] = state[2]
+        self.state["vc_y"] = state[3]
+
+        if len(self.past_state["x"]) != 0:
+            self.P_apriori = np.matmul(self.A_matrix, np.matmul(self.P_aposteriori, self.A_matrix.T)) + self.Q_matrix + self.Dopvar_matrix
+        else:
+            self.P_apriori = self.Q_matrix + self.Dopvar_matrix
+
+    def update(self):
+        state = np.array([self.state["x"], self.state["y"], self.state["vc_x"], self.state["vc_y"]])
+        
+        ekf = np.zeros((2,))
+        #print(self.inputs["R"])
+        if self.inputs["R"] is not None:
+            ekf[0] = self.inputs["x_EKF"]
+            ekf[1] = self.inputs["y_EKF"]
+            R = self.inputs["R"]
+            #print(np.matmul(self.C_matrix, np.matmul(self.P_apriori, self.C_matrix.T)))
+            K_k = np.matmul(self.P_apriori, (np.matmul(self.C_matrix.T, np.linalg.inv(np.matmul(self.C_matrix, np.matmul(self.P_apriori, self.C_matrix.T)) + R))))
+        else:
+            ekf[0] = 0
+            ekf[1] = 0
+            R = np.zeros((2, 2))
+            K_k = np.zeros((4, 2))
+        
+        state = state + np.matmul(K_k, (ekf - np.matmul(self.C_matrix, state)))
+        self.P_aposteriori = np.matmul(np.identity(4) - np.matmul(K_k, self.C_matrix), self.P_apriori)
+        
+        self.state["x"] = state[0]
+        self.state["y"] = state[1]
+        self.state["vc_x"] = state[2]
+        self.state["vc_y"] = state[3]

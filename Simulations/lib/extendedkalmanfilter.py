@@ -13,8 +13,10 @@ import numpy as np
 
 
 class ExtendedKalmanFilter:
-    def __init__(self, F_matrix=None, Q_matrix=None, R_matrix=None, dt=1):
+    def __init__(self, F_matrix=None, Q_matrix=None, R_matrix=None, state_history=False, dt=1):
         self.dt = dt
+        self.state_history = state_history
+
         if F_matrix is None:
             self.F_matrix = np.array([[1, 0, self.dt, 0],
                                       [0, 1, 0, self.dt],
@@ -25,7 +27,8 @@ class ExtendedKalmanFilter:
         if Q_matrix is None:
             self.Q_matrix = 10 * np.exp(-6) * np.array([[10, 0, 0, 0],
                                                         [0, 10, 0, 0],
-                                                        [0, 0, 1, 1]])
+                                                        [0, 0, 1, 0],
+                                                        [0, 0, 0, 1]])
         else:
             self.Q_matrix = Q_matrix
         if R_matrix is None:
@@ -55,12 +58,11 @@ class ExtendedKalmanFilter:
                 "range0": 0
             }
 
-        self.past_state = {
-            "x": [],
-            "y": [],
-            "x_dot": [],
-            "y_dot": []
-        }
+        
+        if state_history:
+            self.past_state = self.state.copy()
+            for key in self.past_state.keys():
+                self.past_state[key] = []
 
     def set_initial_conditions(self, ic):
         for key in self.state.keys():

@@ -261,6 +261,7 @@ class Circle(PathSection):
         # Missing the arc length
         self.arc = arc
         self.radius = radius
+        self.start = start
 
         """
         t = np.linspace(0, 2*pi, self.resolution, endpoint=True, dtype=float)

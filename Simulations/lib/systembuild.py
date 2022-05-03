@@ -1846,7 +1846,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         self.pf_control_target1 = pf.Lapierre(some_path=path_target1, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
         # self.cpf_control_target1 = cpf.CPFDiscreteControllerETC(num_auv=3, id=1, params=cpf_params_target, k_csi=cpf_params_target["k_csi1"], A_matrix=self.A_matrix_target, etc_type=etc_type, state_history=state_history, dt=dt)
         self.cf_target1 = cf.ComplementaryFilter(H_matrix=cf_params["H_matrix"], state_history=state_history, dt=dt)
-        self.dms_target1 = cf.DopplerMeasureSimulation(variance=cf_params["doppler_var"], sampling_period=0.1)
+        self.dms_target1 = cf.DopplerMeasureSimulation(variance=cf_params["doppler_var"], sampling_period=0.5)
 
         # self.kine_target2 = kn.Kinematics(saturate=0, state_history=state_history, dt=dt)
         # self.pf_control_target2 = pf.Lapierre(some_path=path_target2, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
@@ -1912,7 +1912,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         target_pos = np.array([outputs_kine_target1["x"], outputs_kine_target1["y"]])
         y_k0 = self.rms_tracker0.measurement(t, tracker0_pos, target_pos)
         y_k1 = self.rms_tracker1.measurement(t, tracker1_pos, target_pos)
-        if t < 150 or t > 200:
+        if t < 150 or t > 250:
             inputs_ekf_tracker["range0"] = y_k0
             inputs_ekf_tracker["range1"] = y_k1
         else:
@@ -2002,7 +2002,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         inputs_pf_target1["velocity_dot"] = 0
         # inputs_pf_target2["velocity_dot"] = 0
         
-        if t - self.last_cf_ekf_time > 2:
+        if t - self.last_cf_ekf_time > 5:
             self.last_cf_ekf_time = t
             # inputs_cf_target0["x_EKF"] = outputs_ekf_tracker["x_dot"]
             # inputs_cf_target0["y_EKF"] = outputs_ekf_tracker["y_dot"]
@@ -2123,6 +2123,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         outputs["theta_dot_ekf"] = outputs_ekf_tracker["theta_dot"]
         outputs["range0"] = y_k0
         outputs["range1"] = y_k1
+
 
         # Save outputs for plotting
         if self.history:
