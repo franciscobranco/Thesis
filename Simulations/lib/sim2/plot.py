@@ -11,57 +11,13 @@ import numpy as np
 from math import pi
 import matplotlib.pyplot as plt
 
-import pathgeneration as pg
-import lib.systembuild as sb
 
-
-def run_simulation():
-    # Path parameters
-    resolution = 40
-    start = 0
-    position0 = np.array([0, 0])
-    position1 = np.array([0, 0])
-    orientation = -pi/2
-    size = 15.0
-    arc = 2*pi
-    radius = size
-
-    # Path creation
-    p0 = pg.Path()
-    circle0 = pg.Circle(resolution, position0, orientation, arc, radius, start)
-    p0.append_path(circle0)
-
-    p1 = pg.Path()
-    circle1 = pg.Circle(resolution, position1, orientation, arc, radius - 5, start)
-    p1.append_path(circle1)
-
-    # Time parameters
-    T, dt = np.linspace(start=0, stop=100, num=4000, retstep=True)
-    
-    # Vehicle initial conditions
-    x = -10
-    y = -14
-    theta_m = 0
-    s = 0
-
-    cpf_params = {
-        "norm0": p0.total_distance,
-        "norm1": p1.total_distance,
-        "speed_profile0": 1,
-        "speed_profile1": 0.66
-    }
-
-    # System creation along with initial conditions
-    auv_pf_system = sb.DoubleAUVCPFContinuousCommunications(p0, p1, k_csi=0.1, cpf_params=cpf_params, gamma=1, k1=1, k2=0.3, k_delta=1, theta_a=0.8, history=True, dt=dt)
-    ic = {"x0": x, "y0": y, "theta_m0": theta_m, "s0": s, "x1": x, "y1": y + 5, "theta_m1": theta_m, "s1": s}
-    auv_pf_system.set_initial_conditions(ic)
-
-    # Run the system
-    for t in T:
-        auv_pf_system.update(t)
-
+def plot(paths, num_points, total_time, resolution, T, past_values):
     # Get past values for plotting
-    all_outputs, _, pf0, _, pf1 = auv_pf_system.past_values()
+    all_outputs, _, pf0, _, pf1 = past_values
+
+    p0 = paths["p0"]
+    p1 = paths["p1"]
     
     # Start plotting
     fig, ax1 = plt.subplots(2,2)
@@ -80,7 +36,7 @@ def run_simulation():
     ax1[0][0].set_xlabel('X [m]')
     ax1[0][0].set_ylabel('Y [m]')
     ax1[0][0].grid()
-    ax1[0][0].legend(['target\'s path', 'target', 'follower'])
+    ax1[0][0].legend(['target\'s path', 'follower\'s path', 'target', 'follower'])
 
     # Velocity plot
     ax1[1][0].set_title('AUV Velocity plot')

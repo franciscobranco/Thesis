@@ -10,7 +10,7 @@ Created: 22/12/2020
 #import utils
 
 
-from lib.sim10 import run
+from lib.sim3 import run
 
 
 if __name__ == '__main__':

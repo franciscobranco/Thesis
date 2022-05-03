@@ -10,7 +10,6 @@ Description: Two ASVs target pursuit with double range measurement example and c
 
 import numpy as np
 from math import pi
-import matplotlib.pyplot as plt
 
 import pathgeneration as pg
 import lib.sim10.systembuild as sb

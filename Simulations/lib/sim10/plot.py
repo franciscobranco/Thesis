@@ -33,7 +33,8 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()
 
-    frame_rate = num_points / total_time * 8
+    frame_factor = 8
+    frame_rate = num_points / total_time * frame_factor
     
     
     """
