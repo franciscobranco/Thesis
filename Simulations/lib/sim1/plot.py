@@ -10,6 +10,8 @@ import numpy as np
 from math import pi
 import matplotlib.pyplot as plt
 
+import pathgeneration as pg
+
 
 def plot(paths, num_points, total_time, resolution, T, past_values):
     all_outputs, _, _, _ = past_values

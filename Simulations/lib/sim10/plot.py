@@ -13,7 +13,6 @@ from math import pi
 import matplotlib.pyplot as plt
 
 import pathgeneration as pg
-import lib.systembuild as sb
 
 
 def plot(paths, num_points, total_time, resolution, T, past_values):
