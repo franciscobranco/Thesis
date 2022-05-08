@@ -77,7 +77,7 @@ class Kinematics:
         if self.saturate == 0:
             theta_m_dot = self.inputs["u"]
         else:
-            theta_m_dot = self.saturate * np.tanh(self.inputs["u"])
+            theta_m_dot = np.clip(self.inputs["u"], (-1) * np.abs(self.saturate), np.abs(self.saturate))
         return theta_m_dot
 
     

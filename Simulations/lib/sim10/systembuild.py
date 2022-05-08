@@ -98,7 +98,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         self.pf_control_tracker0 = pf.Lapierre(some_path=path_tracker0, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
         self.cpf_control_tracker0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params_tracker, k_csi=cpf_params_tracker["k_csi0"], A_matrix=self.A_matrix_tracker, etc_type=etc_type, state_history=state_history, dt=dt)
         self.rms_tracker0 = ekf.RangeMeasureSimulation(R=ekf_params["R_matrix"][0][0], sampling_period=2)
-        self.ekf_tracker = ekf.ExtendedKalmanFilter(F_matrix=ekf_params["F_matrix"], Q_matrix=ekf_params["Q_matrix"], R_matrix=ekf_params["R_matrix"], state_history=state_history, dt=dt)
+        self.ekf_tracker = ekf.ExtendedKalmanFilter(F_matrix=ekf_params["F_matrix"], Q_matrix=ekf_params["Q_matrix"], R_matrix=ekf_params["R_matrix"], dt=dt)
         
         self.mpf_control_tracker1 = mpf.MovingPathFollowingTest(target_velocity="Multiple", saturate=0, state_history=state_history, dt=dt)
         self.pf_control_tracker1 = pf.Lapierre(some_path=path_tracker1, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
@@ -237,7 +237,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         inputs_pf_tracker1["y"] = outputs_mpf_tracker1["y_ref"]
         inputs_pf_tracker1["theta_m"] = outputs_mpf_tracker1["theta_m_ref"]
         inputs_pf_tracker1["velocity"] = outputs_cpf_tracker1["velocity"]
-        inputs_pf_tracker1["velocity_dot"] = outputs_cpf_tracker0["velocity_dot"]
+        inputs_pf_tracker1["velocity_dot"] = outputs_cpf_tracker1["velocity_dot"]
 
         self.cpf_control_tracker0.inputs["gamma0"] = outputs_pf_tracker0["s"]
         self.cpf_control_tracker1.inputs["gamma1"] = outputs_pf_tracker1["s"]

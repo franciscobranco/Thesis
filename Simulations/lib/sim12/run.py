@@ -58,7 +58,7 @@ def simulation():
 
 
     # Time parameters
-    total_time = 50
+    total_time = 1000
     num_points = total_time * 20
     T, dt = np.linspace(start=0, stop=total_time, num=num_points, retstep=True)
     
@@ -206,7 +206,7 @@ def simulation():
         "y_target1": -50.0,
         "theta_m_target1": theta_m,
         "s_target1": 0.125,
-        "x_target2": -50.0,
+        "x_target2": -40.0,
         "y_target2": -40.0,
         "theta_m_target2": theta_m,
         "s_target2": 0.125,

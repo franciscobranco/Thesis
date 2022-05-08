@@ -12,12 +12,12 @@ from math import pi
 import numpy as np
 
 
-class MovingPathFollowingTest:
-    def __init__(self, number_laps=4, target_velocity="Single", follower_velocity="Single", saturate=1, state_history=False, dt=1):
+class MovingPathFollowing:
+    def __init__(self, target_velocity="Single", follower_velocity="Single", saturate=1, rotating_path=False, state_history=False, dt=1):
         self.state_history = state_history
         self.dt = dt
         self.saturate = saturate
-        self.number_laps = number_laps
+        self.rotating_path = rotating_path
         self.target_velocity = target_velocity
         self.follower_velocity = follower_velocity
 
@@ -33,7 +33,7 @@ class MovingPathFollowingTest:
             "target_y": 0,
             "target_yaw": 0,
             "target_u": 0,
-            "follower_u": 0,
+            "follower_u": 0
         }
         if target_velocity == "Single":
             self.inputs["target_velocity"] = 0
@@ -84,7 +84,7 @@ class MovingPathFollowingTest:
         if self.saturate == 0:
             theta_m_dot = self.inputs["follower_u"]
         else:
-            theta_m_dot = self.saturate * np.tanh(self.inputs["follower_u"])
+            theta_m_dot = np.clip(self.inputs["follower_u"], (-1) * np.abs(self.saturate), np.abs(self.saturate))
         
         self.state["x"] = self.state["x"] + follower_velocity[0] * dt
         self.state["y"] = self.state["y"] + follower_velocity[1] * dt
@@ -97,7 +97,8 @@ class MovingPathFollowingTest:
 
     def follower_x_dot(self):
         if self.follower_velocity == "Single":
-            x_dot = self.inputs["follower_velocity"] * np.cos(self.state["theta_m_ref"])
+            theta_m = self.inertial_yaw()
+            x_dot = self.inputs["follower_velocity"] * np.cos(theta_m)
         elif self.follower_velocity == "Multiple":
             x_dot = self.inputs["follower_x_dot"]
 
@@ -105,7 +106,8 @@ class MovingPathFollowingTest:
 
     def follower_y_dot(self):
         if self.follower_velocity == "Single":
-            y_dot = self.inputs["follower_velocity"] * np.sin(self.state["theta_m_ref"])
+            theta_m = self.inertial_yaw()
+            y_dot = self.inputs["follower_velocity"] * np.sin(theta_m)
         elif self.follower_velocity == "Multiple":
             y_dot = self.inputs["follower_y_dot"]
         
@@ -128,7 +130,11 @@ class MovingPathFollowingTest:
         return y_dot
 
     def reference_yaw(self, follower_yaw, target_yaw):
-        ry = utils.angle_wrapper(follower_yaw - target_yaw)
+        if self.rotating_path:
+            ry = utils.angle_wrapper(follower_yaw - target_yaw)
+        else:
+            ry = follower_yaw
+        
         return ry
     
     def point_in_reference(self, follower_x, follower_y, target_yaw, target_x, target_y):
@@ -140,11 +146,19 @@ class MovingPathFollowingTest:
         target[0] = target_x
         target[1] = target_y
 
-        pir = np.linalg.inv(utils.rotation_matrix(target_yaw)).dot(follower - target)
+        if self.rotating_path:
+            pir = np.matmul(np.linalg.inv(utils.rotation_matrix(target_yaw)), follower - target)
+        else:
+            pir = follower - target
+
         return pir
 
     def inertial_yaw(self):
-        iy = utils.angle_wrapper(self.state["theta_m_ref"] + self.inputs["target_yaw"])
+        if self.rotating_path:
+            iy = utils.angle_wrapper(self.state["theta_m_ref"] + self.inputs["target_yaw"])
+        else:
+            iy = self.state["theta_m_ref"]
+
         return iy
 
     """
@@ -168,20 +182,26 @@ class MovingPathFollowingTest:
 
         point_ref = self.point_in_reference(self.state["x"], self.state["y"], self.inputs["target_yaw"], self.inputs["target_x"], self.inputs["target_y"])
 
-        u_vec = np.zeros((2,))
-        u_vec[0] = - self.saturate * np.tanh(self.inputs["target_u"]) * point_ref[1]
-        u_vec[1] = self.saturate * np.tanh(self.inputs["target_u"]) * point_ref[0]
-
         follower_vel = np.zeros((2,))
         follower_vel[0] = self.follower_x_dot()
         follower_vel[1] = self.follower_y_dot()
 
-        igl = target_vel + utils.rotation_matrix(self.inputs["target_yaw"]).dot(u_vec) + utils.rotation_matrix(self.inputs["target_yaw"]).dot(follower_vel)
+        if self.rotating_path:
+            u_vec = np.zeros((2,))
+            if self.saturate != 0:
+                u_vec[0] = (-1) * np.clip(self.inputs["target_u"], (-1) * np.abs(self.saturate), np.abs(self.saturate)) * point_ref[1]
+                u_vec[1] = np.clip(self.inputs["target_u"], (-1) * np.abs(self.saturate), np.abs(self.saturate)) * point_ref[0]
+            else:
+                u_vec[0] = (-1) * self.inputs["target_u"] * point_ref[1]
+                u_vec[1] = self.inputs["target_u"] * point_ref[0]
+            igl = target_vel + utils.rotation_matrix(self.inputs["target_yaw"]).dot(u_vec) + np.matmul(utils.rotation_matrix(self.inputs["target_yaw"]), follower_vel)
+        else:
+            igl = target_vel + follower_vel
+        
         return igl
 
 
-
-
+"""
 class MovingPathFollowing:
     def __init__(self, target_velocity="Single", follower_velocity="Single", saturate=1, state_history=False, dt=1):
         self.state_history = state_history
@@ -312,19 +332,19 @@ class MovingPathFollowing:
         iy = utils.angle_wrapper(self.state["theta_m_ref"] + self.inputs["target_yaw"])
         return iy
 
-    """
-    def point_in_inertial(self):
-        point_reference = np.zeros((2,))
-        point_reference[0] = self.state["x"] - self.inputs["target_x"]
-        point_reference[1] = self.state["y"] - self.inputs["target_y"]
+    
+    # def point_in_inertial(self):
+    #     point_reference = np.zeros((2,))
+    #     point_reference[0] = self.state["x"] - self.inputs["target_x"]
+    #     point_reference[1] = self.state["y"] - self.inputs["target_y"]
 
-        target = np.zeros((2,))
-        target[0] = self.inputs["target_x"]
-        target[1] = self.inputs["target_y"]
+    #     target = np.zeros((2,))
+    #     target[0] = self.inputs["target_x"]
+    #     target[1] = self.inputs["target_y"]
 
-        pii = target + utils.rotation_matrix(self.inputs["target_yaw"]).dot(point_reference)
-        return pii
-    """
+    #     pii = target + utils.rotation_matrix(self.inputs["target_yaw"]).dot(point_reference)
+    #     return pii
+    
 
     def inertial_guidance_law(self):
         target_vel = np.zeros((2,))
@@ -334,8 +354,13 @@ class MovingPathFollowing:
         point_ref = self.point_in_reference(self.state["x"], self.state["y"], self.inputs["target_yaw"], self.inputs["target_x"], self.inputs["target_y"])
 
         u_vec = np.zeros((2,))
-        u_vec[0] = - self.saturate * np.tanh(self.inputs["target_u"]) * point_ref[1]
-        u_vec[1] = self.saturate * np.tanh(self.inputs["target_u"]) * point_ref[0]
+        if 
+            if self.saturate != 0:
+                u_vec[0] = (-1) * np.clip(self.inputs["target_u"], (-1) * np.abs(self.saturate), np.abs(self.saturate)) * point_ref[1]
+                u_vec[1] = np.clip(self.inputs["target_u"], (-1) * np.abs(self.saturate), np.abs(self.saturate)) * point_ref[0]
+            else:
+                u_vec[0] = (-1) * self.inputs["target_u"] * point_ref[1]
+                u_vec[1] = self.inputs["target_u"] * point_ref[0]
 
         follower_vel = np.zeros((2,))
         follower_vel[0] = self.follower_x_dot()
@@ -343,3 +368,5 @@ class MovingPathFollowing:
 
         igl = target_vel + utils.rotation_matrix(self.inputs["target_yaw"]).dot(u_vec) + utils.rotation_matrix(self.inputs["target_yaw"]).dot(follower_vel)
         return igl
+
+    """

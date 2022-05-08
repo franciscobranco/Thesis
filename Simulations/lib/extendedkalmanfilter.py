@@ -119,8 +119,12 @@ class ExtendedKalmanFilter:
             C_k = np.zeros((self.R_matrix.shape[0], 4))
             ranges = np.zeros((self.R_matrix.shape[0],))
             for i in range(self.R_matrix.shape[0]):
-                C_k[i][0] = (self.state["x"] - self.inputs["tracker_x" + str(i)]) / d_k[i]
-                C_k[i][1] = (self.state["y"] - self.inputs["tracker_y" + str(i)]) / d_k[i]
+                if d_k[i] == 0:
+                    C_k[i][0] = 0
+                    C_k[i][1] = 0
+                else:
+                    C_k[i][0] = (self.state["x"] - self.inputs["tracker_x" + str(i)]) / d_k[i]
+                    C_k[i][1] = (self.state["y"] - self.inputs["tracker_y" + str(i)]) / d_k[i]
                 C_k[i][2] = 0
                 C_k[i][3] = 0
                 if self.inputs["range" + str(i)] != None:
@@ -141,7 +145,10 @@ class ExtendedKalmanFilter:
             self.P_aposteriori = np.matmul(np.identity(4) - np.matmul(K_k, C_k), self.P_apriori)
         
         else:
-            C_k = np.array([(self.state["x"] - self.inputs["tracker_x0"]) / d_k, (self.state["y"] - self.inputs["tracker_y0"]) / d_k, 0, 0])
+            if d_k == 0:
+                C_k = np.array([0, 0, 0, 0])
+            else:
+                C_k = np.array([(self.state["x"] - self.inputs["tracker_x0"]) / d_k, (self.state["y"] - self.inputs["tracker_y0"]) / d_k, 0, 0])
             K_k = np.matmul(self.P_apriori, (C_k.T * np.power(np.matmul(C_k, np.matmul(self.P_apriori, C_k.T)) + self.R_matrix, -1)))# self.P_apriori.dot(C_k.T.dot(np.power(C_k.dot(self.P_apriori.dot(C_k.T)) + self.R_matrix, -1)))
 
             

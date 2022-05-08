@@ -204,8 +204,8 @@ class CPFDiscreteControllerETC:
         error_gain = self.params["k_csi"]
         speed_profile = self.params["speed_profile" + str(self.id)]
         #print(utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma))
-        v_correction = (-1) * error_gain * np.tanh(self_gamma - np.dot(self.comm_vector, gamma))
-        final_velocity = speed_profile + v_correction * self.params["norm" + str(self.id)]
+        v_correction = (-1) * error_gain * np.tanh((self_gamma - np.dot(self.comm_vector, gamma)) * self.params["norm" + str(self.id)])
+        final_velocity = speed_profile + v_correction
         """
         if abs(final_velocity) >= 1.75:
             print(gamma)
@@ -260,7 +260,7 @@ class CPFDiscreteControllerETC:
 
     def get_error(self):
         error = utils.gamma_difference(self.state["gamma_hat" + str(self.id)], self.inputs["gamma" + str(self.id)])
-        
+        #print("id ", self.id, "gamma hat ", self.state["gamma_hat" + str(self.id)], " gamma ", self.inputs["gamma" + str(self.id)], " error ", error)
         return error
 
     def cpf_update(self, dt=None):
@@ -278,7 +278,6 @@ class CPFDiscreteControllerETC:
 
     def check_update(self, t):
         if (self.time_trigger(t) > 0 and self.etc_type == "Time") or (self.state_trigger() > 0 and self.etc_type == "State"):
-            
             if self.state_history:
                 self.past_state["broadcasts"].append(t)
             # Updates its own state
@@ -317,3 +316,97 @@ class CPFDiscreteControllerETC:
             
             self.start_time = t
         return
+
+
+class CooperativeFormationControl(CPFDiscreteControllerETC):
+    def __init__(self, num_auv=2, id=0, saturate=0, params=None, k_csi=1, A_matrix=None, delay=0, etc_type="Time", state_history=False, dt=1, virtual_centre=False, path=None, kf=1):
+        super().__init__(num_auv=num_auv, id=id, saturate=saturate, params=params, k_csi=k_csi, A_matrix=A_matrix, delay=delay, etc_type=etc_type, state_history=state_history, dt=dt)
+        self.virtual_centre = virtual_centre
+
+        if virtual_centre:
+            self.path = path
+            self.kf = kf
+
+            for i in range(self.params["num_auv"]):
+                self.inputs["ef" + str(i)] = 0
+
+            self.centre_gamma = 0.125
+            self.past_centre_gamma = []
+
+    def inputs_outputs(self):
+        vd, vd_dot = self.cpf_output()
+        outputs = {"velocity": vd, "velocity_dot": vd_dot}
+
+        if self.virtual_centre:
+            x, y = self.path.get_xy(self.inputs["gamma" + str(self.id)])
+            theta = self.path.get_theta_c(self.inputs["gamma" + str(self.id)])
+            outputs["centre_x"] = x
+            outputs["centre_y"] = y
+            outputs["centre_theta"] = theta
+        
+        return (self.inputs.copy(), outputs)
+
+    def vd(self):
+        gamma = self.get_gamma_est()
+        self_gamma, gamma = utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma)
+        
+        error_gain = self.params["k_csi"]
+        speed_profile = self.params["speed_profile" + str(self.id)]
+        #print(utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma))
+        v_correction = (-1) * error_gain * np.tanh((self_gamma - np.dot(self.comm_vector, gamma)) * self.params["norm" + str(self.id)])
+        if self.virtual_centre:
+            ef_sum = 0
+            for i in range(self.params["num_auv"]):
+                ef_sum = ef_sum + self.inputs["ef" + str(i)]
+            ef = (1/self.params["num_auv"]) * ef_sum
+            final_velocity = (1 - np.tanh(self.kf * ef)) * (speed_profile + v_correction)
+        else:
+            final_velocity = speed_profile + v_correction
+        """
+        if abs(final_velocity) >= 1.75:
+            print(gamma)
+            print(utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma))
+            print(final_velocity)
+        """
+        
+        return final_velocity
+
+    def vd_dot(self):
+        error_gain = self.params["k_csi"]
+        vd = self.vd()
+        gamma = self.get_gamma_est()
+        self_gamma, gamma = utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma)
+        gamma_dot = np.zeros((self.params["num_auv"],))
+        for i in range(self.params["num_auv"]):
+            gamma_dot[i] = self.params["speed_profile" + str(i)] / self.params["norm" + str(i)]
+
+        differentiable_term = 1 / np.square(np.cosh(self_gamma - np.dot(self.comm_vector, gamma)))
+
+        speed_profile = self.params["speed_profile" + str(self.id)]
+        v_correction = (-1) * error_gain * np.tanh((self_gamma - np.dot(self.comm_vector, gamma)) * self.params["norm" + str(self.id)])
+        
+        if self.virtual_centre:
+            ef_sum = 0
+            for i in range(self.params["num_auv"]):
+                pass
+                #ef_sum = ef_sum + np.sqrt(np.power(self.path.get_x(self.inputs["gamma" + str(i)]) - self.inputs["x" + str(i)], 2) + np.power(self.path.get_y(self.inputs["gamma" + str(i)]) - self.inputs["y" + str(i)], 2))
+            ef = (1/self.params["num_auv"]) * ef_sum
+            # NOT COMPLETE, REPLACE NUMBER 1
+            vd_dot = (1) * (speed_profile + v_correction) + (1 - np.tanh(self.kf * ef)) * (-1) * error_gain * differentiable_term * (vd - np.dot(self.comm_vector, gamma_dot) * self.params["norm" + str(self.id)])
+        else:
+            vd_dot = (-1) * error_gain * differentiable_term * (vd - np.dot(self.comm_vector, gamma_dot) * self.params["norm" + str(self.id)])
+        #print(vd_dot)
+        return vd_dot
+
+    def cfc_update(self, dt=None):
+        if dt is None:
+            dt = self.dt
+
+        super().cpf_update(dt=dt)
+
+        if self.virtual_centre:
+            vd = self.vd()
+            self.centre_gamma = self.centre_gamma + vd / self.path.total_distance * dt
+
+            if self.state_history:
+                self.past_centre_gamma.append(self.centre_gamma)

@@ -60,8 +60,8 @@ class Lapierre:
             self.laps = self.laps + 1
             #self.state["s"] = 1
         elif self.state["s"] < 0:
-            #self.state["s"] = self.state["s"] + 1
-            self.state["s"] = 0
+            self.state["s"] = self.state["s"] + 1
+            # self.state["s"] = 0
 
         self.state["s1"] = self.state["s1"] + s1_update * dt
         self.state["y1"] = self.state["y1"] + y1_update * dt
@@ -80,7 +80,7 @@ class Lapierre:
         s_dot_law = self.s_dot_law()
         u = theta_dot_law + (Cc * s_dot_law)
         s1, y1 = self.distance_geometry()
-        
+        #print(u, s, s1, y1, theta_dot_law)
         return (u, s, s1, y1)
 
     def inputs_outputs(self) -> Tuple[dict, dict]:
@@ -122,6 +122,8 @@ class Lapierre:
         v = self.inputs["velocity"]
         s_dot = self.s_dot_law()
 
+        # print("s1 ", s1, " s_dot ", s_dot)
+
         y1_dot = ((-1) * Cc * s_dot * s1) + (v * np.sin(theta))
 
         return y1_dot
@@ -150,6 +152,10 @@ class Lapierre:
         else:
             theta_dot_law = delta_dot - (self.params["gamma"] * y1 * v * ((np.sin(theta) - np.sin(delta)) / dividing_term)) - (self.params["k2"] * (theta - delta))
 
+        # print("y1 ", y1, " y1_dot ", y1_dot)
+        # print("delta_dot ", delta_dot)
+        # print("theta_dot_law ", theta_dot_law)
+
         return theta_dot_law
 
     def distance_geometry(self) -> Tuple[float, float]:
@@ -158,9 +164,9 @@ class Lapierre:
         vehicle_y = self.inputs["y"]
         rabbit_x, rabbit_y = self.path.get_xy(s)
 
-        res = utils.rotation_matrix((-1) * self.path.get_theta_c(s)).dot(np.array([[vehicle_x - rabbit_x], [vehicle_y - rabbit_y]]))
-
-        s1 = res[0][0]
-        y1 = res[1][0]
+        res = np.matmul(utils.rotation_matrix((-1) * self.path.get_theta_c(s)), (np.array([vehicle_x - rabbit_x, vehicle_y - rabbit_y])))
+        
+        s1 = res[0]
+        y1 = res[1]
 
         return (s1, y1)

@@ -270,7 +270,7 @@ class DoubleASVMPFOnAUVTargetPursuit:
         inputs_pf_tracker1["y"] = outputs_mpf_tracker1["y_ref"]
         inputs_pf_tracker1["theta_m"] = outputs_mpf_tracker1["theta_m_ref"]
         inputs_pf_tracker1["velocity"] = outputs_cpf_tracker1["velocity"]
-        inputs_pf_tracker1["velocity_dot"] = outputs_cpf_tracker0["velocity_dot"]
+        inputs_pf_tracker1["velocity_dot"] = outputs_cpf_tracker1["velocity_dot"]
 
         self.cpf_control_tracker0.inputs["gamma0"] = outputs_pf_tracker0["s"]
         self.cpf_control_tracker1.inputs["gamma1"] = outputs_pf_tracker1["s"]
@@ -351,6 +351,7 @@ class DoubleASVMPFOnAUVTargetPursuit:
         self.mpf_control_tracker1.mpf_update(inputs_mpf_tracker1, dt=self.dt)
         self.pf_control_tracker1.pf_update(inputs_pf_tracker1, dt=self.dt)
         self.cpf_control_tracker1.cpf_update(dt=self.dt)
+
 
         return outputs
 
