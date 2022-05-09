@@ -2,7 +2,7 @@
 
 Author: Francisco Branco
 Created: 04/05/2022
-Description: Formation Control Example
+Description: Cooperative Formation Control Example
 
 """
 
@@ -58,7 +58,7 @@ def simulation():
 
 
     # Time parameters
-    total_time = 50
+    total_time = 1000
     num_points = total_time * 20
     T, dt = np.linspace(start=0, stop=total_time, num=num_points, retstep=True)
     
@@ -88,15 +88,15 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": p_target0.total_distance / (p_target1.total_distance / (target_speed - 0.1)),
-        "k_csi1": target_speed - 0.1,
-        "k_csi2": p_target2.total_distance / (p_target1.total_distance / (target_speed - 0.1)),
+        "k_csi0": p_target0.total_distance / (p_target1.total_distance / (target_speed)),
+        "k_csi1": target_speed,
+        "k_csi2": p_target2.total_distance / (p_target1.total_distance / (target_speed)),
         "norm0": p_target0.total_distance,
         "norm1": p_target1.total_distance,
         "norm2": p_target2.total_distance,
-        "speed_profile0": p_target0.total_distance / (p_target1.total_distance / target_speed),
+        "speed_profile0": p_target0.total_distance / (p_target1.total_distance / (target_speed)),
         "speed_profile1": target_speed,
-        "speed_profile2": p_target2.total_distance / (p_target1.total_distance / target_speed), # 0.24
+        "speed_profile2": p_target2.total_distance / (p_target1.total_distance / (target_speed)), # 0.24
     }
 
     cpf_params_tracker = {
@@ -108,8 +108,8 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": tracker_speed - 0.1,
-        "k_csi1": tracker_speed - 0.1,
+        "k_csi0": tracker_speed, # tracker_speed - 0.1
+        "k_csi1": tracker_speed, # tracker_speed - 0.1
         "norm0": p_tracker0.total_distance,
         "norm1": p_tracker1.total_distance,
         "speed_profile0": tracker_speed,
@@ -126,7 +126,7 @@ def simulation():
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
         "k_csi0": target_speed,
-        "k_csi1": target_speed + 0.2,
+        "k_csi1": target_speed, # target_speed + 0.2
         "norm0": p_target1.total_distance,
         "norm1": p_target1.total_distance,
         "speed_profile0": target_speed,
@@ -134,49 +134,10 @@ def simulation():
         "kf": 1
     }
 
-    # EKF parameters
-    F_matrix = np.array([[1, 0, dt, 0],
-                         [0, 1, 0, dt],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]])
-    
-    Q_matrix = 10 * np.exp(-6) * np.array([[10, 0, 0, 0],
-                                           [0, 10, 0, 0],
-                                           [0, 0, 1, 0],
-                                           [0, 0, 0, 1]])
-
-    R_matrix = np.array([[0.01, 0], [0, 0.01]])
-
-    ekf_params = {
-        "F_matrix": F_matrix,
-        "Q_matrix": Q_matrix,
-        "R_matrix": R_matrix
-    }
-
-    A_matrix = np.array([[1, 0, dt, 0],
-                         [0, 1, 0, dt],
-                         [0, 0, 1, 0],
-                         [0, 0, 0, 1]])
-    B_matrix = np.array([[dt, 0],
-                         [0, dt],
-                         [0, 0],
-                         [0, 0]])
-    C_matrix = np.array([[1, 0, 0, 0],
-                         [0, 1, 0, 0]])
-
-    doppler_var = 0.1#np.array([[0.01, 0], [0, 0.01]])
-
-    ckf_params = {
-        "A_matrix": A_matrix,
-        "B_matrix": B_matrix,
-        "C_matrix": C_matrix,
-        "Q_matrix": Q_matrix,
-        "doppler_var": doppler_var
-    }
+    smart_cpf = 0.01
 
     # Amount of time in seconds the target is not moving at the beginning
     time_halted = 0
-
 
     # System creation along with initial conditions
     auv_system = sb.DoubleASVCFCTripleAUV(
@@ -189,29 +150,28 @@ def simulation():
         cpf_params_target=cpf_params_target,
         cpf_params_tracker=cpf_params_tracker,
         cfc_params_formation=cfc_params_formation,
-        ekf_params=ekf_params,
-        ckf_params=ckf_params,
         time_halted=time_halted,
         etc_type="Time",
+        smart_cpf=smart_cpf,
         history=True,
         dt=dt
     )
 
     ic = {
-        "x_target0": -60.0,
-        "y_target0": -60.0,
+        "x_target0": -40.0,
+        "y_target0": -40.0,
         "theta_m_target0": theta_m,
         "s_target0": 0.125,
         "x_target1": -50.0,
         "y_target1": -50.0,
         "theta_m_target1": theta_m,
         "s_target1": 0.125,
-        "x_target2": -50.0,
-        "y_target2": -40.0,
+        "x_target2": -60.0,
+        "y_target2": -60.0,
         "theta_m_target2": theta_m,
         "s_target2": 0.125,
-        "x_follower0": -100.0,
-        "y_follower0": -100.0,
+        "x_follower0": -99.0,
+        "y_follower0": -99.0,
         "theta_m_follower0": theta_m,
         "s_follower0": s,
         "x_follower1": -100.0,
@@ -225,8 +185,6 @@ def simulation():
     for t in T:
         auv_system.update(t)
         #input()
-
-
 
 
     # Plotting

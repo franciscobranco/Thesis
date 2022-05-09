@@ -112,12 +112,13 @@ class CPFContinuousController:
 
 
 class CPFDiscreteControllerETC:
-    def __init__(self, num_auv=2, id=0, saturate=0, params=None, k_csi=1, A_matrix=None, delay=0, etc_type="Time", state_history=False, dt=1):
+    def __init__(self, num_auv=2, id=0, saturate=0, params=None, k_csi=1, A_matrix=None, delay=0, etc_type="Time", smart_cpf=0, state_history=False, dt=1):
         self.id = id
         self.state_history = state_history
         self.dt = dt
         self.delay = delay
         self.saturate = saturate
+        self.smart_cpf = smart_cpf
         
         if etc_type != "Time" and etc_type != "State":
             print("Error: wrong etc_type. Either Time or State")
@@ -131,6 +132,8 @@ class CPFDiscreteControllerETC:
         self.D_matrix = np.zeros(A_matrix.shape)
 
         self.inputs = {"gamma" + str(self.id): 0}
+        if self.smart_cpf != 0:
+            self.inputs["ef"] = 0
         self.state = {}
         
         for i in range(num_auv):
@@ -203,15 +206,12 @@ class CPFDiscreteControllerETC:
         
         error_gain = self.params["k_csi"]
         speed_profile = self.params["speed_profile" + str(self.id)]
-        #print(utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma))
         v_correction = (-1) * error_gain * np.tanh((self_gamma - np.dot(self.comm_vector, gamma)) * self.params["norm" + str(self.id)])
-        final_velocity = speed_profile + v_correction
-        """
-        if abs(final_velocity) >= 1.75:
-            print(gamma)
-            print(utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma))
-            print(final_velocity)
-        """
+        
+        if self.smart_cpf != 0:
+            final_velocity = speed_profile + (1 - np.tanh(self.smart_cpf * self.inputs["ef"])) * v_correction
+        else:
+            final_velocity = speed_profile + v_correction
         
         return final_velocity
 
@@ -319,8 +319,8 @@ class CPFDiscreteControllerETC:
 
 
 class CooperativeFormationControl(CPFDiscreteControllerETC):
-    def __init__(self, num_auv=2, id=0, saturate=0, params=None, k_csi=1, A_matrix=None, delay=0, etc_type="Time", state_history=False, dt=1, virtual_centre=False, path=None, kf=1):
-        super().__init__(num_auv=num_auv, id=id, saturate=saturate, params=params, k_csi=k_csi, A_matrix=A_matrix, delay=delay, etc_type=etc_type, state_history=state_history, dt=dt)
+    def __init__(self, num_auv=2, id=0, saturate=0, params=None, k_csi=1, A_matrix=None, delay=0, etc_type="Time", smart_cpf=0, state_history=False, dt=1, virtual_centre=False, path=None, kf=1):
+        super().__init__(num_auv=num_auv, id=id, saturate=saturate, params=params, k_csi=k_csi, A_matrix=A_matrix, delay=delay, etc_type=etc_type, smart_cpf=smart_cpf, state_history=state_history, dt=dt)
         self.virtual_centre = virtual_centre
 
         if virtual_centre:
@@ -332,6 +332,9 @@ class CooperativeFormationControl(CPFDiscreteControllerETC):
 
             self.centre_gamma = 0.125
             self.past_centre_gamma = []
+        else:
+            self.inputs["ef"] = 0
+            self.inputs["vc"] = 0
 
     def inputs_outputs(self):
         vd, vd_dot = self.cpf_output()
@@ -361,13 +364,10 @@ class CooperativeFormationControl(CPFDiscreteControllerETC):
             ef = (1/self.params["num_auv"]) * ef_sum
             final_velocity = (1 - np.tanh(self.kf * ef)) * (speed_profile + v_correction)
         else:
-            final_velocity = speed_profile + v_correction
-        """
-        if abs(final_velocity) >= 1.75:
-            print(gamma)
-            print(utils.gamma_change_one(self.inputs["gamma" + str(self.id)], gamma))
-            print(final_velocity)
-        """
+            if self.smart_cpf != 0:
+                final_velocity = speed_profile + (1 - np.tanh(self.smart_cpf * self.inputs["ef"])) * (v_correction + self.inputs["vc"])
+            else:
+                final_velocity = speed_profile + v_correction + self.inputs["vc"]
         
         return final_velocity
 

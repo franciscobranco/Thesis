@@ -23,11 +23,13 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     p_tracker1 = paths["p_tracker1"]
 
     # Plotting
-    all_outputs, kine_target0, pf_target0, ckf_target0, cpf_target0, kine_target1, pf_target1, ckf_target1, cpf_target1, cfc_target1, kine_target2, pf_target2, ckf_target2, cpf_target2, mpf_tracker0, pf_tracker0, cpf_tracker0, cfc_tracker0, cfc_centre, mpf_tracker1, pf_tracker1, cpf_tracker1, ekf_tracker = past_values
+    all_outputs, kine_target0, pf_target0, cpf_target0, kine_target1, pf_target1, cpf_target1, cfc_target1, kine_target2, pf_target2, cpf_target2, mpf_tracker0, pf_tracker0, cpf_tracker0, cfc_tracker0, cfc_centre, mpf_tracker1, pf_tracker1, cpf_tracker1 = past_values
 
-    #print("Broadcasts: " + str(len(cpf_target0["broadcasts"]) + len(cpf_target1["broadcasts"]) + len(cpf_target2["broadcasts"]) + len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
-    print("Broadcasts: " + str(len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
+    print("Target Broadcasts: " + str(len(cpf_target0["broadcasts"]) + len(cpf_target1["broadcasts"]) + len(cpf_target2["broadcasts"]) + len(cpf_tracker0["broadcasts"])))
+    print("Tracker Broadcasts: " + str(len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
+    print("Formation Broadcasts: " + str(len(cfc_tracker0["broadcasts"]) + len(cfc_target1["broadcasts"])))
 
+    input()
 
     # Start plotting
     fig, ax = plt.subplots(2, 3, constrained_layout=True)
@@ -36,7 +38,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()
 
-    frame_factor = 8
+    frame_factor = 16
     frame_rate = num_points / total_time * frame_factor
     
     
@@ -173,13 +175,6 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             ax[0][0].plot(all_outputs["x_target1"][:i], all_outputs["y_target1"][:i], color='tab:orange', linestyle='--', label='_nolegend_')
             ax[0][0].plot(all_outputs["x_target2"][:i], all_outputs["y_target2"][:i], color='tab:green', linestyle='--', label='_nolegend_')
 
-            # ax[0][0].plot(all_outputs["x_pred_target0"][i], all_outputs["y_pred_target0"][i], color='tab:cyan', marker='o')
-            # ax[0][0].plot(all_outputs["x_pred_target1"][i], all_outputs["y_pred_target1"][i], color='tab:gray', marker='o')
-            # ax[0][0].plot(all_outputs["x_pred_target2"][i], all_outputs["y_pred_target2"][i], color='tab:olive', marker='o')
-            # ax[0][0].plot(all_outputs["x_pred_target0"][:i], all_outputs["y_pred_target0"][:i], color='tab:cyan', linestyle='--')
-            # ax[0][0].plot(all_outputs["x_pred_target1"][:i], all_outputs["y_pred_target1"][:i], color='tab:gray', linestyle='--', label='_nolegend_')
-            # ax[0][0].plot(all_outputs["x_pred_target2"][:i], all_outputs["y_pred_target2"][:i], color='tab:olive', linestyle='--')
-
             p_r = pg.Path()
             circle_r = pg.Circle(resolution, np.array([p_target1.get_x(cfc_centre[i]), p_target1.get_y(cfc_centre[i])]), 0., paths["p_tracker0"].path_list[0].arc, paths["p_tracker0"].path_list[0].radius, paths["p_tracker0"].path_list[0].start)
             p_r.append_path(circle_r)
@@ -187,11 +182,9 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
 
             ax[0][0].plot(all_outputs["x_tracker0"][i], all_outputs["y_tracker0"][i], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker0"][i] / (2*pi) - 90), markersize=10)
             ax[0][0].plot(all_outputs["x_tracker1"][i], all_outputs["y_tracker1"][i], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][i] / (2*pi) - 90), markersize=10)
-            # ax[0][0].plot(all_outputs["x_ekf"][i], all_outputs["y_ekf"][i], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf"][i] / (2*pi) - 90), markersize=10)
             
             #ax[0][0].plot(all_outputs["x_tracker0"][:i], all_outputs["y_tracker0"][:i], color='magenta', linestyle='--')
             #ax[0][0].plot(all_outputs["x_tracker1"][:i], all_outputs["y_tracker1"][:i], color='red', linestyle='--')
-            #ax[0][0].plot(all_outputs["x_ekf"][:i], all_outputs["y_ekf"][:i], color='purple', linestyle='--')
             
             ax[0][0].legend([
                 'target path0',
@@ -199,12 +192,10 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
                 'target path2',
                 'target0',
                 'target1',
-                # 'target1 prediction',
                 'target2',
                 'moving path',
                 'tracker0',
-                'tracker1',
-                # 'EKF estimate'
+                'tracker1'
                 ],
                 bbox_to_anchor=(0.75, 0.75), prop={'size': 6})
 
@@ -255,26 +246,6 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
                 'broadcast target'], prop={'size': 6})
             ax[0][1].grid()
 
-            """
-            # Range-measurement plot
-            ax[0][1].set_title('Range-measurements')
-            measurements0 = [[], []]
-            measurements1 = [[], []]
-            for j in range(i):
-                if all_outputs["range0"][j] != None:
-                    measurements0[0].append(T[j])
-                    measurements0[1].append(all_outputs["range0"][j])
-                if all_outputs["range1"][j] != None:
-                    measurements1[0].append(T[j])
-                    measurements1[1].append(all_outputs["range1"][j])
-            ax[0][1].plot(measurements0[0], measurements0[1], color='magenta', linestyle='-')
-            ax[0][1].plot(measurements1[0], measurements1[1], color='red', linestyle='-')
-            ax[0][1].set_xlabel('time [s]')
-            ax[0][1].set_ylabel('distance measure [m]')
-            ax[0][1].legend(['tracker0', 'tracker1'])
-            ax[0][1].grid()
-            """
-
             # ETC Broadcasting plot
             ax[1][1].set_title('ETC Broadcasting', y=1.0, pad=-14)
             broadcasts = [[], [], [], [], []]
@@ -310,25 +281,6 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
                 'tracker1'], prop={'size': 6})
             ax[1][1].grid()
 
-            """
-            # EKF error Plot
-            error = []
-            for j in range(i):
-                error.append(np.sqrt(np.power(ekf_tracker["x"][j] - all_outputs["x_target1"][j], 2) + np.power(ekf_tracker["y"][j] - all_outputs["y_target1"][j], 2)))
-            ax[1][1].plot(T[:i], error[:i], c='purple')
-            
-            position_error = []
-            for j in range(i):
-                position_error.append(np.sqrt(np.power(all_outputs["x_target1"][j] - all_outputs["x_pred_target1"][j], 2) + np.power(all_outputs["y_target1"][j] - all_outputs["y_pred_target1"][j], 2)))
-            ax[1][1].plot(T[:i], position_error, c='tab:gray')
-            
-            ax[1][1].set_xlabel('time [s]')
-            ax[1][1].set_ylabel('distance [m]')
-            ax[1][1].legend(['EKF estimate', 'CKF estimate'])
-            ax[1][1].set_title('EKF and CKF Error plot')
-            ax[1][1].grid()
-            """
-            
             # Vehicle projection on path plot
             ax[0][2].set_title('Vehicle Postion on Path', y=1.0, pad=-14)
             ax[0][2].plot(T[:i], pf_target0["s"][:i], c='tab:blue')
@@ -355,6 +307,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             ax[1][2].plot(T[:i], all_outputs["u_tracker1"][:i], color='red', linestyle='-')
             ax[1][2].set_xlabel('time [s]')
             ax[1][2].set_ylabel('angle rate [rad/s]')
+            ax[1][2].set_ylim([-5, 5])
             ax[1][2].grid()
             ax[1][2].legend([
                 'target0',
@@ -363,8 +316,6 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
                 'tracker0',
                 'tracker1'], prop={'size': 6})
 
-
-            
 
             fig.show()
             plt.pause(0.001)
