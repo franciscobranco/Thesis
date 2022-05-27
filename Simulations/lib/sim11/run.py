@@ -9,6 +9,7 @@ Description: Cooperative Formation Control Example
 
 
 import numpy as np
+import pickle
 from math import pi
 
 import pathgeneration as pg
@@ -16,7 +17,10 @@ import lib.sim11.systembuild as sb
 import lib.sim11.plot as plotting
 
 
-def simulation():
+def simulation(file_name):
+    if file_name != "":
+        f = open("lib\sim11\\" + file_name + ".txt", 'wb')
+
     # Path parameters
     resolution = 40
 
@@ -69,7 +73,7 @@ def simulation():
     s = 0.0
 
     target_speed = 0.2
-    tracker_speed = target_speed * 2
+    tracker_speed = target_speed * 2.5
 
     pf_params = {
         "gamma": 1.0,
@@ -88,9 +92,9 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": p_target0.total_distance / (p_target1.total_distance / (target_speed)),
-        "k_csi1": target_speed,
-        "k_csi2": p_target2.total_distance / (p_target1.total_distance / (target_speed)),
+        "k_csi0": p_target0.total_distance / (p_target1.total_distance / (target_speed - 0.05)),
+        "k_csi1": target_speed - 0.05,
+        "k_csi2": p_target2.total_distance / (p_target1.total_distance / (target_speed - 0.05)),
         "norm0": p_target0.total_distance,
         "norm1": p_target1.total_distance,
         "norm2": p_target2.total_distance,
@@ -108,8 +112,8 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": tracker_speed, # tracker_speed - 0.1
-        "k_csi1": tracker_speed, # tracker_speed - 0.1
+        "k_csi0": tracker_speed - 0.1, # tracker_speed
+        "k_csi1": tracker_speed - 0.1, # tracker_speed
         "norm0": p_tracker0.total_distance,
         "norm1": p_tracker1.total_distance,
         "speed_profile0": tracker_speed,
@@ -125,16 +129,18 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": target_speed,
-        "k_csi1": target_speed, # target_speed + 0.2
+        "k_csi0": target_speed - 0.1,
+        "k_csi1": target_speed - 0.1, # target_speed + 0.2
         "norm0": p_target1.total_distance,
         "norm1": p_target1.total_distance,
         "speed_profile0": target_speed,
         "speed_profile1": target_speed,
-        "kf": 1
+        "kf": 1,
+        "kg": 1
     }
 
     smart_cpf = 0.01
+    tracker = 0.1
 
     # Amount of time in seconds the target is not moving at the beginning
     time_halted = 0
@@ -153,6 +159,7 @@ def simulation():
         time_halted=time_halted,
         etc_type="Time",
         smart_cpf=smart_cpf,
+        tracker=tracker,
         history=True,
         dt=dt
     )
@@ -191,5 +198,14 @@ def simulation():
     paths = {"p_target0": p_target0, "p_target1": p_target1, "p_target2": p_target2, "p_tracker0": p_tracker0, "p_tracker1": p_tracker1}
     # Get past values for plotting
     past_values = auv_system.past_values()
+
+    if file_name != "":
+        pickle.dump(paths, f)
+        pickle.dump(num_points, f)
+        pickle.dump(total_time, f)
+        pickle.dump(resolution, f)
+        pickle.dump(T, f)
+        pickle.dump(past_values, f)
+        f.close()
 
     plotting.plot(paths, num_points, total_time, resolution, T, past_values)

@@ -112,13 +112,14 @@ class CPFContinuousController:
 
 
 class CPFDiscreteControllerETC:
-    def __init__(self, num_auv=2, id=0, saturate=0, params=None, k_csi=1, A_matrix=None, delay=0, etc_type="Time", smart_cpf=0, state_history=False, dt=1):
+    def __init__(self, num_auv=2, id=0, saturate=0, params=None, k_csi=1, A_matrix=None, delay=0, etc_type="Time", smart_cpf=0, tracker=0, state_history=False, dt=1):
         self.id = id
         self.state_history = state_history
         self.dt = dt
         self.delay = delay
         self.saturate = saturate
         self.smart_cpf = smart_cpf
+        self.tracker = tracker
         
         if etc_type != "Time" and etc_type != "State":
             print("Error: wrong etc_type. Either Time or State")
@@ -134,6 +135,8 @@ class CPFDiscreteControllerETC:
         self.inputs = {"gamma" + str(self.id): 0}
         if self.smart_cpf != 0:
             self.inputs["ef"] = 0
+            if self.tracker != 0:
+                self.inputs["gamma_error"] = 0
         self.state = {}
         
         for i in range(num_auv):
@@ -209,7 +212,10 @@ class CPFDiscreteControllerETC:
         v_correction = (-1) * error_gain * np.tanh((self_gamma - np.dot(self.comm_vector, gamma)) * self.params["norm" + str(self.id)])
         
         if self.smart_cpf != 0:
-            final_velocity = speed_profile + (1 - np.tanh(self.smart_cpf * self.inputs["ef"])) * v_correction
+            if self.tracker != 0:
+                final_velocity = speed_profile * (1 - np.tanh(self.tracker * np.abs(self.inputs["gamma_error"])) + np.tanh(self.smart_cpf * self.inputs["ef"])) + (1 - np.tanh(self.smart_cpf * self.inputs["ef"])) * v_correction
+            else:
+                final_velocity = speed_profile + (1 - np.tanh(self.smart_cpf * self.inputs["ef"])) * v_correction
         else:
             final_velocity = speed_profile + v_correction
         
@@ -362,7 +368,7 @@ class CooperativeFormationControl(CPFDiscreteControllerETC):
             for i in range(self.params["num_auv"]):
                 ef_sum = ef_sum + self.inputs["ef" + str(i)]
             ef = (1/self.params["num_auv"]) * ef_sum
-            final_velocity = (1 - np.tanh(self.kf * ef)) * (speed_profile + v_correction)
+            final_velocity = (1 - np.tanh(self.kf * ef)) * speed_profile + v_correction
         else:
             if self.smart_cpf != 0:
                 final_velocity = speed_profile + (1 - np.tanh(self.smart_cpf * self.inputs["ef"])) * (v_correction + self.inputs["vc"])

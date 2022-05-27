@@ -33,6 +33,7 @@ class DoubleASVCFCTripleAUV:
                  time_halted=0,
                  etc_type="Time",
                  smart_cpf=0,
+                 tracker=0,
                  history=False, dt=1):
 
         self.dt = dt
@@ -47,6 +48,7 @@ class DoubleASVCFCTripleAUV:
         self.cfc_params_formation = cfc_params_formation
         self.time_halted = time_halted
         self.smart_cpf = smart_cpf
+        self.tracker = tracker
 
         self.time = []
         
@@ -110,12 +112,12 @@ class DoubleASVCFCTripleAUV:
         
         self.mpf_tracker0 = mpf.MovingPathFollowing(target_velocity="Single", saturate=pi/4, rotating_path=False, state_history=state_history, dt=dt)
         self.pf_tracker0 = pf.Lapierre(some_path=path_tracker0, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
-        self.cpf_tracker0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params_tracker, k_csi=cpf_params_tracker["k_csi0"], A_matrix=self.A_matrix_tracker, etc_type=etc_type, smart_cpf=False, state_history=state_history, dt=dt)
+        self.cpf_tracker0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params_tracker, k_csi=cpf_params_tracker["k_csi0"], A_matrix=self.A_matrix_tracker, etc_type=etc_type, smart_cpf=self.smart_cpf, tracker=self.tracker, state_history=state_history, dt=dt)
         self.cfc_tracker0 = cpf.CooperativeFormationControl(num_auv=2, id=0, params=cfc_params_formation, k_csi=cfc_params_formation["k_csi0"], A_matrix=self.A_matrix_formation, etc_type=etc_type, state_history=state_history, dt=dt, virtual_centre=True, path=path_target1, kf=cfc_params_formation["kf"])
 
         self.mpf_tracker1 = mpf.MovingPathFollowing(target_velocity="Single", saturate=pi/4, rotating_path=False, state_history=state_history, dt=dt)
         self.pf_tracker1 = pf.Lapierre(some_path=path_tracker1, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
-        self.cpf_tracker1 = cpf.CPFDiscreteControllerETC(num_auv=2, id=1, params=cpf_params_tracker, k_csi=cpf_params_tracker["k_csi1"], A_matrix=self.A_matrix_tracker, etc_type=etc_type, smart_cpf=self.smart_cpf, state_history=state_history, dt=dt)
+        self.cpf_tracker1 = cpf.CPFDiscreteControllerETC(num_auv=2, id=1, params=cpf_params_tracker, k_csi=cpf_params_tracker["k_csi1"], A_matrix=self.A_matrix_tracker, etc_type=etc_type, smart_cpf=self.smart_cpf, tracker=self.tracker, state_history=state_history, dt=dt)
         
     def update(self, t):
         # Get dictionaries setup
@@ -162,6 +164,10 @@ class DoubleASVCFCTripleAUV:
 
         self.cpf_tracker0.inputs["ef"] = np.linalg.norm(np.array([x_tracker0, y_tracker0]))
         self.cpf_tracker1.inputs["ef"] = np.linalg.norm(np.array([x_tracker1, y_tracker1]))
+
+        if self.tracker != 0:
+            self.cpf_tracker0.inputs["gamma_error"] = self.cfc_tracker0.centre_gamma - outputs_pf_target1["s"]
+            self.cpf_tracker1.inputs["gamma_error"] = self.cfc_tracker0.centre_gamma - outputs_pf_target1["s"]
 
         self.cfc_tracker0.inputs["gamma0"] = self.cfc_tracker0.centre_gamma
         self.cfc_tracker0.inputs["ef0"] = np.linalg.norm(np.array([x_tracker0, y_tracker0]))

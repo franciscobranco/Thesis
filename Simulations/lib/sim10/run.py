@@ -10,13 +10,17 @@ Description: Two ASVs target pursuit with double range measurement example and c
 
 import numpy as np
 from math import pi
+import pickle
 
 import pathgeneration as pg
 import lib.sim10.systembuild as sb
 import lib.sim10.plot as plotting
 
 
-def simulation():
+def simulation(file_name):
+    if file_name != "":
+        f = open("lib\sim10\\" + file_name + ".txt", 'wb')
+    
     # Path parameters
     resolution = 40
 
@@ -201,5 +205,14 @@ def simulation():
     paths = {"p_target1": p_target1, "p_tracker0": p_tracker0, "p_tracker1": p_tracker1}
     # Get past values for plotting
     past_values = auv_system.past_values()
+
+    if file_name != "":
+        pickle.dump(paths, f)
+        pickle.dump(num_points, f)
+        pickle.dump(total_time, f)
+        pickle.dump(resolution, f)
+        pickle.dump(T, f)
+        pickle.dump(past_values, f)
+        f.close()
 
     plotting.plot(paths, num_points, total_time, resolution, T, past_values)

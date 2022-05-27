@@ -25,11 +25,10 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     # Plotting
     all_outputs, kine_target0, pf_target0, cpf_target0, kine_target1, pf_target1, cpf_target1, cfc_target1, kine_target2, pf_target2, cpf_target2, mpf_tracker0, pf_tracker0, cpf_tracker0, cfc_tracker0, cfc_centre, mpf_tracker1, pf_tracker1, cpf_tracker1 = past_values
 
-    print("Target Broadcasts: " + str(len(cpf_target0["broadcasts"]) + len(cpf_target1["broadcasts"]) + len(cpf_target2["broadcasts"]) + len(cpf_tracker0["broadcasts"])))
+    print("Target Broadcasts: " + str(len(cpf_target0["broadcasts"]) + len(cpf_target1["broadcasts"]) + len(cpf_target2["broadcasts"])))
     print("Tracker Broadcasts: " + str(len(cpf_tracker0["broadcasts"]) + len(cpf_tracker1["broadcasts"])))
     print("Formation Broadcasts: " + str(len(cfc_tracker0["broadcasts"]) + len(cfc_target1["broadcasts"])))
-
-    input()
+    input("Press Enter to start plotting...")
 
     # Start plotting
     fig, ax = plt.subplots(2, 3, constrained_layout=True)
@@ -146,7 +145,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     """
 
     for i in range(len(T)):
-        if i % frame_rate == 0:
+        if i % frame_rate == 0 or i == len(T):
 
             if i != len(T) - 1:
                 ax[0][0].cla()
@@ -183,19 +182,19 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             ax[0][0].plot(all_outputs["x_tracker0"][i], all_outputs["y_tracker0"][i], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker0"][i] / (2*pi) - 90), markersize=10)
             ax[0][0].plot(all_outputs["x_tracker1"][i], all_outputs["y_tracker1"][i], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][i] / (2*pi) - 90), markersize=10)
             
-            #ax[0][0].plot(all_outputs["x_tracker0"][:i], all_outputs["y_tracker0"][:i], color='magenta', linestyle='--')
-            #ax[0][0].plot(all_outputs["x_tracker1"][:i], all_outputs["y_tracker1"][:i], color='red', linestyle='--')
+            ax[0][0].plot(all_outputs["x_tracker0"][:i], all_outputs["y_tracker0"][:i], color='magenta', linestyle='--')
+            ax[0][0].plot(all_outputs["x_tracker1"][:i], all_outputs["y_tracker1"][:i], color='red', linestyle='--')
             
             ax[0][0].legend([
-                'target path0',
-                'target path1',
-                'target path2',
-                'target0',
-                'target1',
-                'target2',
-                'moving path',
-                'tracker0',
-                'tracker1'
+                'Target Path 0',
+                'Target Path 1',
+                'Target Path 2',
+                'Target 0',
+                'Target 1',
+                'Target 2',
+                'Moving Path',
+                'Tracker 0',
+                'Tracker 1'
                 ],
                 bbox_to_anchor=(0.75, 0.75), prop={'size': 6})
 
@@ -217,16 +216,16 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             ax[1][0].set_xlabel('time [s]')
             ax[1][0].set_ylabel('velocity [m/s]')
             ax[1][0].legend([
-                'target0',
-                'target1',
-                'target2',
-                'tracker0',
-                'tracker1'], prop={'size': 6})
+                'Target 0',
+                'Target 1',
+                'Target 2',
+                'Tracker 0',
+                'Tracker 1'], prop={'size': 6})
             ax[1][0].grid()
 
             # Cooperative Formation Control Plot
             ax[0][1].set_title('Cooperative Formation Control', y=1.0, pad=-14)
-            ax[0][1].plot(T[:i], cfc_centre[:i], c='magenta')
+            ax[0][1].plot(T[:i], cfc_centre[:i], c='tab:red')
             ax[0][1].plot(T[:i], pf_target1["s"][:i], c='tab:orange')
             broadcasts = [[], []]
             for j in range(len(cfc_tracker0["broadcasts"])):
@@ -235,15 +234,15 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             for j in range(len(cfc_target1["broadcasts"])):
                 if cfc_target1["broadcasts"][j] <= T[i]:
                     broadcasts[1].append(cfc_target1["broadcasts"][j])
-            ax[0][1].scatter(broadcasts[0], np.full(len(broadcasts[0]), -1), c='magenta', marker='+')
+            ax[0][1].scatter(broadcasts[0], np.full(len(broadcasts[0]), -1), c='tab:red', marker='+')
             ax[0][1].scatter(broadcasts[1], np.full(len(broadcasts[1]), -1), c='tab:orange', marker='+')
             ax[0][1].set_xlabel('time [s]')
             ax[0][1].set_ylabel('gammas')
             ax[0][1].legend([
-                'tracker0',
-                'target1',
-                'broadcast tracker',
-                'broadcast target'], prop={'size': 6})
+                'Moving Path',
+                'Target 1',
+                'Broadcast Moving Path',
+                'Broadcast Target'], prop={'size': 6})
             ax[0][1].grid()
 
             # ETC Broadcasting plot
@@ -270,15 +269,16 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             ax[1][1].scatter(broadcasts[2], np.full(len(broadcasts[2]), 2), c='tab:green', marker='+')
             ax[1][1].scatter(broadcasts[3], np.full(len(broadcasts[3]), 3), c='magenta', marker='+')
             ax[1][1].scatter(broadcasts[4], np.full(len(broadcasts[4]), 4), c='red', marker='+')
-            ax[1][1].set_xlim([0, T[i]])
+            if T[i] != 0:
+                ax[1][1].set_xlim([0, T[i]])
             ax[1][1].set_xlabel('time [s]')
             ax[1][1].set_ylabel('Broadcasts')
             ax[1][1].legend([
-                'target0',
-                'target1',
-                'target2',
-                'tracker0',
-                'tracker1'], prop={'size': 6})
+                'Target 0',
+                'Target 1',
+                'Target 2',
+                'Tracker 0',
+                'Tracker 1'], prop={'size': 6})
             ax[1][1].grid()
 
             # Vehicle projection on path plot
@@ -291,11 +291,11 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             ax[0][2].set_xlabel('time [s]')
             ax[0][2].set_ylabel('gammas')
             ax[0][2].legend([
-                'target0',
-                'target1',
-                'target2',
-                'tracker0',
-                'tracker1'], prop={'size': 6})
+                'Target 0',
+                'Target 1',
+                'Target 2',
+                'Tracker 0',
+                'Tracker 1'], prop={'size': 6})
             ax[0][2].grid()
             
             # Lapierre output u plot
@@ -310,16 +310,16 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             ax[1][2].set_ylim([-5, 5])
             ax[1][2].grid()
             ax[1][2].legend([
-                'target0',
-                'target1',
-                'target2',
-                'tracker0',
-                'tracker1'], prop={'size': 6})
+                'Target 0',
+                'Target 1',
+                'Target 2',
+                'Tracker 0',
+                'Tracker 1'], prop={'size': 6})
 
 
             fig.show()
             plt.pause(0.001)
-            
-    plt.pause(100)
-
     
+    
+    input("Press Enter to end plotting...")        
+    plt.pause(0.1)
