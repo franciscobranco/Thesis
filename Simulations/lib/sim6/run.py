@@ -9,6 +9,7 @@ Description: Formation Control Simple example
 
 
 import numpy as np
+import pickle
 from math import pi
 
 import pathgeneration as pg
@@ -16,14 +17,17 @@ import lib.sim6.systembuild as sb
 import lib.sim6.plot as plotting
 
 
-def simulation():
+def simulation(file_name):
+    if file_name != "":
+        f = open("lib\sim6\\" + file_name + ".txt", 'wb')
+
     # Path parameters
     resolution = 40
 
     start_target = 0
     position_target = np.array([0, 0])
     orientation_target = -pi/2
-    size_target = 15.0
+    size_target = 25.0
     arc_target = 2*pi
     radius_target = size_target
 
@@ -58,7 +62,7 @@ def simulation():
 
 
     # Time parameters
-    total_time = 350
+    total_time = 400
     num_points = total_time * 20
     T, dt = np.linspace(start=0, stop=total_time, num=num_points, retstep=True)
     
@@ -76,6 +80,8 @@ def simulation():
         "theta_a": 0.8
     }
 
+    nominal_speed = 0.2
+
     cpf_params_target = {
         "c0": 0.01, #0.01
         "c1": 0.5, #0.5
@@ -85,15 +91,15 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": 0.25,
-        "k_csi1": 0.25,
-        "k_csi2": 0.25,
+        "k_csi0": p_target0.total_distance / (p_target2.total_distance / nominal_speed),
+        "k_csi1": p_target1.total_distance / (p_target2.total_distance / nominal_speed),
+        "k_csi2": nominal_speed,
         "norm0": p_target0.total_distance,
         "norm1": p_target1.total_distance,
         "norm2": p_target2.total_distance,
-        "speed_profile0": p_target0.total_distance / (p_target2.total_distance / 0.25),
-        "speed_profile1": p_target1.total_distance / (p_target2.total_distance / 0.25),
-        "speed_profile2": 0.25
+        "speed_profile0": p_target0.total_distance / (p_target2.total_distance / nominal_speed),
+        "speed_profile1": p_target1.total_distance / (p_target2.total_distance / nominal_speed),
+        "speed_profile2": nominal_speed
     }
 
     cpf_params_follower = {
@@ -109,8 +115,8 @@ def simulation():
         "k_csi1": 0.5,
         "norm0": p_follower0.total_distance,
         "norm1": p_follower1.total_distance,
-        "speed_profile0": 1,
-        "speed_profile1": 1
+        "speed_profile0": 0.8,
+        "speed_profile1": 0.8
     }
 
 
@@ -162,5 +168,14 @@ def simulation():
     paths = {"p_target0": p_target0, "p_target1": p_target1, "p_target2": p_target2, "p_follower0": p_follower0, "p_follower1": p_follower1}
     # Get past values for plotting
     past_values = auv_system.past_values()
+
+    if file_name != "":
+        pickle.dump(paths, f)
+        pickle.dump(num_points, f)
+        pickle.dump(total_time, f)
+        pickle.dump(resolution, f)
+        pickle.dump(T, f)
+        pickle.dump(past_values, f)
+        f.close()
 
     plotting.plot(paths, num_points, total_time, resolution, T, past_values)

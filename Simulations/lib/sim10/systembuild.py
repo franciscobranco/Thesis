@@ -135,7 +135,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         target_pos = np.array([outputs_kine_target1["x"], outputs_kine_target1["y"]])
         y_k0 = self.rms_tracker0.measurement(t, tracker0_pos, target_pos)
         y_k1 = self.rms_tracker1.measurement(t, tracker1_pos, target_pos)
-        if t < 150 or t > 200:
+        if t < 150 or t > 150 + self.time_halted:
             inputs_ekf_tracker["range0"] = y_k0
             inputs_ekf_tracker["range1"] = y_k1
         else:
@@ -182,12 +182,8 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         # AUV Target
         inputs_kine_target1["u"] = outputs_pf_target1["u"]
         
-        if t < self.time_halted:
-            inputs_kine_target1["velocity"] = 0.0
-            inputs_pf_target1["velocity"] = 0.0
-        else:
-            inputs_kine_target1["velocity"] = self.cpf_params_target["speed_profile1"]
-            inputs_pf_target1["velocity"] = self.cpf_params_target["speed_profile1"]
+        inputs_kine_target1["velocity"] = self.cpf_params_target["speed_profile1"]
+        inputs_pf_target1["velocity"] = self.cpf_params_target["speed_profile1"]
 
         inputs_kine_target1["velocity_dot"] = 0
 
@@ -199,24 +195,14 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
 
 
         # ASV
-        if t < self.time_halted:
-            inputs_mpf_tracker0["target_x"] = -4.
-            inputs_mpf_tracker0["target_y"] = -10.
-            inputs_mpf_tracker0["target_x_dot"] = 0.
-            inputs_mpf_tracker0["target_y_dot"] = 0.
-            inputs_mpf_tracker1["target_x"] = -4.
-            inputs_mpf_tracker1["target_y"] = -10.
-            inputs_mpf_tracker1["target_x_dot"] = 0.
-            inputs_mpf_tracker1["target_y_dot"] = 0.
-        else:
-            inputs_mpf_tracker0["target_x"] = outputs_ekf_tracker["x"]
-            inputs_mpf_tracker0["target_y"] = outputs_ekf_tracker["y"]
-            inputs_mpf_tracker0["target_x_dot"] = outputs_ekf_tracker["x_dot"]
-            inputs_mpf_tracker0["target_y_dot"] = outputs_ekf_tracker["y_dot"]
-            inputs_mpf_tracker1["target_x"] = outputs_ekf_tracker["x"]
-            inputs_mpf_tracker1["target_y"] = outputs_ekf_tracker["y"]
-            inputs_mpf_tracker1["target_x_dot"] = outputs_ekf_tracker["x_dot"]
-            inputs_mpf_tracker1["target_y_dot"] = outputs_ekf_tracker["y_dot"]
+        inputs_mpf_tracker0["target_x"] = outputs_ekf_tracker["x"]
+        inputs_mpf_tracker0["target_y"] = outputs_ekf_tracker["y"]
+        inputs_mpf_tracker0["target_x_dot"] = outputs_ekf_tracker["x_dot"]
+        inputs_mpf_tracker0["target_y_dot"] = outputs_ekf_tracker["y_dot"]
+        inputs_mpf_tracker1["target_x"] = outputs_ekf_tracker["x"]
+        inputs_mpf_tracker1["target_y"] = outputs_ekf_tracker["y"]
+        inputs_mpf_tracker1["target_x_dot"] = outputs_ekf_tracker["x_dot"]
+        inputs_mpf_tracker1["target_y_dot"] = outputs_ekf_tracker["y_dot"]
 
         inputs_mpf_tracker0["target_yaw"] = 0
         inputs_mpf_tracker0["target_u"] = 0
@@ -262,10 +248,7 @@ class DoubleASVMPFOnAUVTargetPursuitCF:
         outputs["theta_m_tracker1"] = outputs_mpf_tracker1["theta_m"]
         outputs["s_tracker1"] = outputs_pf_tracker1["s"]
         outputs["u_tracker1"] = outputs_pf_tracker1["u"]
-        if t < self.time_halted:
-            outputs["velocity_target1"] = 0
-        else:
-            outputs["velocity_target1"] = self.cpf_params_target["speed_profile1"]
+        outputs["velocity_target1"] = self.cpf_params_target["speed_profile1"]
         outputs["velocity_tracker0"] = outputs_cpf_tracker0["velocity"]
         outputs["velocity_tracker1"] = outputs_cpf_tracker1["velocity"]
         outputs["x_ekf"] = outputs_ekf_tracker["x"]

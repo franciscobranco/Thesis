@@ -82,11 +82,11 @@ class DoubleASVMPFETCOnTripleAUV:
         self.pf_control_target2 = pf.Lapierre(some_path=path_target2, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
         self.cpf_control_target2 = cpf.CPFDiscreteControllerETC(num_auv=3, id=2, params=cpf_params_target, k_csi=cpf_params_target["k_csi2"], A_matrix=A_matrix_target, etc_type=etc_type, state_history=state_history, dt=dt)
 
-        self.mpf_control_follower0 = mpf.MovingPathFollowingTest(saturate=0, state_history=state_history, dt=dt)
+        self.mpf_control_follower0 = mpf.MovingPathFollowing(saturate=0, state_history=state_history, dt=dt)
         self.pf_control_follower0 = pf.Lapierre(some_path=path_follower0, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
         self.cpf_control_follower0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params_follower, k_csi=cpf_params_follower["k_csi0"], A_matrix=A_matrix_follower, etc_type=etc_type, state_history=state_history, dt=dt)
         
-        self.mpf_control_follower1 = mpf.MovingPathFollowingTest(saturate=0, state_history=state_history, dt=dt)
+        self.mpf_control_follower1 = mpf.MovingPathFollowing(saturate=0, state_history=state_history, dt=dt)
         self.pf_control_follower1 = pf.Lapierre(some_path=path_follower1, gamma=pf_params["gamma"], k1=pf_params["k1"], k2=pf_params["k2"], k_delta=pf_params["k_delta"], theta_a=pf_params["theta_a"], state_history=state_history, dt=dt)
         self.cpf_control_follower1 = cpf.CPFDiscreteControllerETC(num_auv=2, id=1, params=cpf_params_follower, k_csi=cpf_params_follower["k_csi1"], A_matrix=A_matrix_follower, etc_type=etc_type, state_history=state_history, dt=dt)
 

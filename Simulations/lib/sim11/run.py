@@ -73,7 +73,7 @@ def simulation(file_name):
     s = 0.0
 
     target_speed = 0.2
-    tracker_speed = target_speed * 2.5
+    tracker_speed = target_speed * 3
 
     pf_params = {
         "gamma": 1.0,

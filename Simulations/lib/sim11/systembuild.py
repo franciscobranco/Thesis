@@ -159,7 +159,7 @@ class DoubleASVCFCTripleAUV:
         x_tracker1, y_tracker1 = self.pf_tracker1.distance_geometry()
 
         self.cpf_target0.inputs["ef"] = np.linalg.norm(np.array([x_target0, y_target0]))
-        # self.cpf_target1.inputs["ef"] = np.linalg.norm(np.array([x_target1, y_target1]))
+        self.cpf_target1.inputs["ef"] = np.linalg.norm(np.array([x_target1, y_target1]))
         self.cpf_target2.inputs["ef"] = np.linalg.norm(np.array([x_target2, y_target2]))
 
         self.cpf_tracker0.inputs["ef"] = np.linalg.norm(np.array([x_tracker0, y_tracker0]))

@@ -31,295 +31,344 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     input("Press Enter to start plotting...")
 
     # Start plotting
-    fig, ax = plt.subplots(2, 3, constrained_layout=True)
+    fig, ax = plt.subplots(3, 2)#, constrained_layout=True)
     plt.ion()
     #fig.set_size_inches((7, 14))
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()
 
+    Movie = False
+
     frame_factor = 16
     frame_rate = num_points / total_time * frame_factor
+
+    legend_size = 8
     
+    if Movie == False:
+        ax[0][0].set_title('Position plot')
+        p_target0.plot_path(ax[0][0])
+        p_target1.plot_path(ax[0][0])
+        p_target2.plot_path(ax[0][0])
+
+        ax[0][0].plot(p_target0.get_x(pf_target0["s"][-1]), p_target0.get_y(pf_target0["s"][-1]), color='lightskyblue', marker='o', label='_nolegend_')
+        ax[0][0].plot(p_target1.get_x(pf_target1["s"][-1]), p_target1.get_y(pf_target1["s"][-1]), color='orange', marker='o', label='_nolegend_')
+        ax[0][0].plot(p_target2.get_x(pf_target2["s"][-1]), p_target2.get_y(pf_target2["s"][-1]), color='limegreen', marker='o', label='_nolegend_')
+        ax[0][0].plot(p_target1.get_x(cfc_centre[-1]) + p_tracker0.get_x(pf_tracker0["s"][-1]), p_target1.get_y(cfc_centre[-1]) + p_tracker0.get_y(pf_tracker0["s"][-1]), color='violet', marker='o', label='_nolegend_')
+        ax[0][0].plot(p_target1.get_x(cfc_centre[-1]) + p_tracker1.get_x(pf_tracker1["s"][-1]), p_target1.get_y(cfc_centre[-1]) + p_tracker1.get_y(pf_tracker1["s"][-1]), color='orangered', marker='o', label='_nolegend_')
+
+        ax[0][0].plot(all_outputs["x_target0"], all_outputs["y_target0"], color='tab:blue', linestyle='--', label='_nolegend_')
+        ax[0][0].plot(all_outputs["x_target1"], all_outputs["y_target1"], color='tab:orange', linestyle='--', label='_nolegend_')
+        ax[0][0].plot(all_outputs["x_target2"], all_outputs["y_target2"], color='tab:green', linestyle='--', label='_nolegend_')
+
+        ax[0][0].plot(all_outputs["x_tracker0"], all_outputs["y_tracker0"], color='magenta', linestyle='--', label='_nolegend_')
+        ax[0][0].plot(all_outputs["x_tracker1"], all_outputs["y_tracker1"], color='red', linestyle='--', label='_nolegend_')
+
+        p_r = pg.Path()
+        circle_r = pg.Circle(resolution, np.array([p_target1.get_x(cfc_centre[-1]), p_target1.get_y(cfc_centre[-1])]), 0., paths["p_tracker0"].path_list[0].arc, paths["p_tracker0"].path_list[0].radius, paths["p_tracker0"].path_list[0].start)
+        p_r.append_path(circle_r)
+        p_r.plot_path(ax[0][0])
+
+        ax[0][0].plot(all_outputs["x_target0"][-1], all_outputs["y_target0"][-1], color='tab:blue', marker='o')
+        ax[0][0].plot(all_outputs["x_target1"][-1], all_outputs["y_target1"][-1], color='tab:orange', marker='o')
+        ax[0][0].plot(all_outputs["x_target2"][-1], all_outputs["y_target2"][-1], color='tab:green', marker='o')
+
+        ax[0][0].plot(all_outputs["x_tracker0"][-1], all_outputs["y_tracker0"][-1], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker0"][-1] / (2*pi) - 90), markersize=10)
+        ax[0][0].plot(all_outputs["x_tracker1"][-1], all_outputs["y_tracker1"][-1], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][-1] / (2*pi) - 90), markersize=10)
+        
+        ax[0][0].legend([
+            'Target Path 0',
+            'Target Path 1',
+            'Target Path 2',
+            'Virtual Circle',
+            'Target 0',
+            'Target 1',
+            'Target 2',
+            'Tracker 0',
+            'Tracker 1'
+            ], prop={'size': legend_size})
+
+        # Labels and grid
+        ax[0][0].set_xlabel('X [m]')
+        ax[0][0].set_ylabel('Y [m]')
+        ax[0][0].grid()
+        ax[0][0].axis('equal')
+
+        # Velocity plot
+        ax[1][0].set_title('Velocity plot')
+        ax[1][0].plot(T, all_outputs["velocity_target0"], color='tab:blue', linestyle='-')
+        ax[1][0].plot(T, all_outputs["velocity_target1"], color='tab:orange', linestyle='-')
+        ax[1][0].plot(T, all_outputs["velocity_target2"], color='tab:green', linestyle='-')
+        ax[1][0].plot(T, all_outputs["velocity_tracker0"], color='magenta', linestyle='-')
+        ax[1][0].plot(T, all_outputs["velocity_tracker1"], color='red', linestyle='-')
+        # ax[1][0].plot(T[:i], mpf_tracker0["velocity"][:i], color='magenta', linestyle='-')
+        # ax[1][0].plot(T[:i], mpf_tracker1["velocity"][:i], color='red', linestyle='-')
+        ax[1][0].set_xlabel('time [s]')
+        ax[1][0].set_ylabel('velocity [m/s]')
+        ax[1][0].legend([
+            'Target 0',
+            'Target 1',
+            'Target 2',
+            'Tracker 0',
+            'Tracker 1'], prop={'size': legend_size})
+        ax[1][0].grid()
+        ax[1][0].set_xlim([0, 1250])
+        #ax[0][1].set_ylim([-5, 5])
+
+        # Cooperative Formation Control Plot
+        ax[2][1].set_title('Cooperative Formation Control')
+        ax[2][1].plot(T, cfc_centre, c='tab:red')
+        ax[2][1].plot(T, pf_target1["s"], c='tab:orange')
+        ax[2][1].scatter(cfc_tracker0["broadcasts"], np.full(len(cfc_tracker0["broadcasts"]), 1.5), c='tab:red', marker='+')
+        ax[2][1].scatter(cfc_target1["broadcasts"], np.full(len(cfc_target1["broadcasts"]), 1.5), c='tab:orange', marker='+')
+        ax[2][1].set_xlabel('time [s]')
+        ax[2][1].set_ylabel('Coordination State $\gamma$')
+        ax[2][1].legend([
+            'Virtual Circle',
+            'Target 1',
+            'Broadcast Virtual Circle',
+            'Broadcast Target'], prop={'size': legend_size})
+        ax[2][1].grid()
+        ax[2][1].set_xlim([0, 1250])
+
+        # ETC Broadcasting plot
+        ax[1][1].set_title('ETC Broadcasting')
+        ax[1][1].scatter(cpf_target0["broadcasts"], np.full(len(cpf_target0["broadcasts"]), 0), c='tab:blue', marker='+')
+        ax[1][1].scatter(cpf_target1["broadcasts"], np.full(len(cpf_target1["broadcasts"]), 1), c='tab:orange', marker='+')
+        ax[1][1].scatter(cpf_target2["broadcasts"], np.full(len(cpf_target2["broadcasts"]), 2), c='tab:green', marker='+')
+        ax[1][1].scatter(cpf_tracker0["broadcasts"], np.full(len(cpf_tracker0["broadcasts"]), 3), c='magenta', marker='+')
+        ax[1][1].scatter(cpf_tracker1["broadcasts"], np.full(len(cpf_tracker1["broadcasts"]), 4), c='red', marker='+')
+        ax[1][1].set_xlim([0, T[-1]])
+        ax[1][1].set_xlabel('time [s]')
+        ax[1][1].set_ylabel('Broadcasts')
+        ax[1][1].legend([
+            'Target 0',
+            'Target 1',
+            'Target 2',
+            'Tracker 0',
+            'Tracker 1'], prop={'size': legend_size})
+        ax[1][1].grid()
+        ax[1][1].set_xlim([0, 1250])
+
+        # Vehicle path progression plot
+        ax[2][0].set_title('Vehicle Path Progression')
+        ax[2][0].plot(T, pf_target0["s"], c='tab:blue')
+        ax[2][0].plot(T, pf_target1["s"], c='tab:orange')
+        ax[2][0].plot(T, pf_target2["s"], c='tab:green')
+        ax[2][0].plot(T, pf_tracker0["s"], c='magenta')
+        ax[2][0].plot(T, pf_tracker1["s"], c='red')
+        ax[2][0].set_xlabel('time [s]')
+        ax[2][0].set_ylabel('Coordination State $\gamma$')
+        ax[2][0].legend([
+            'Target 0',
+            'Target 1',
+            'Target 2',
+            'Tracker 0',
+            'Tracker 1'], prop={'size': legend_size})
+        ax[2][0].grid()
+        ax[2][0].set_xlim([0, 1250])
+        
+        # Lapierre output u plot
+        ax[0][1].set_title('Lapierre Output')
+        ax[0][1].plot(T, all_outputs["u_target0"])
+        ax[0][1].plot(T, all_outputs["u_target1"])
+        ax[0][1].plot(T, all_outputs["u_target2"])
+        ax[0][1].plot(T, all_outputs["u_tracker0"], color='magenta', linestyle='-')
+        ax[0][1].plot(T, all_outputs["u_tracker1"], color='red', linestyle='-')
+        ax[0][1].set_xlabel('time [s]')
+        ax[0][1].set_ylabel('angle rate [rad/s]')
+        ax[0][1].set_ylim([-5, 5])
+        ax[0][1].grid()
+        ax[0][1].set_xlim([0, 1250])
+        ax[0][1].legend([
+            'Target 0',
+            'Target 1',
+            'Target 2',
+            'Tracker 0',
+            'Tracker 1'], prop={'size': legend_size})
+        
+
+        fig.show()
+        plt.pause(0.1)
+        input("Press Enter to end plotting...") 
+
     
-    """
-    p_target0.plot_path(ax[0][0])
-    p_target1.plot_path(ax[0][0])
-    p_target2.plot_path(ax[0][0])
+    if Movie == True:
+        for i in range(len(T)):
+            if i % frame_rate == 0 or i == len(T):
 
-    ax[0][0].plot(all_outputs["x_target0"][-1], all_outputs["y_target0"][-1], color='tab:blue', marker='o')
-    ax[0][0].plot(all_outputs["x_target1"][-1], all_outputs["y_target1"][-1], color='tab:orange', marker='o')
-    ax[0][0].plot(all_outputs["x_target2"][-1], all_outputs["y_target2"][-1], color='tab:green', marker='o')
+                if i != len(T) - 1:
+                    ax[0][0].cla()
+                    ax[1][0].cla()
+                    ax[0][1].cla()
+                    ax[1][1].cla()
+                    ax[0][2].cla()
+                    ax[1][2].cla()
 
-    p_r = pg.Path()
-    circle_r = pg.Circle(resolution, np.array([all_outputs["x_target1"][-1], all_outputs["y_target1"][-1]]), all_outputs["theta_m_target1"][-1], arc_tracker, radius_tracker, start_tracker)
-    p_r.append_path(circle_r)
-    p_r.plot_path(ax[0][0])
+                
+                ax[0][0].set_title('Position plot', y=1.0, pad=-14)
+                p_target0.plot_path(ax[0][0])
+                p_target1.plot_path(ax[0][0])
+                p_target2.plot_path(ax[0][0])
 
-    # Plot vehicle and past course
-    ax[0][0].plot(all_outputs["x_tracker0"][-1], all_outputs["y_tracker0"][-1], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker0"][-1] / (2*pi) - 90), markersize=10)
-    ax[0][0].plot(all_outputs["x_tracker1"][-1], all_outputs["y_tracker1"][-1], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][-1] / (2*pi) - 90), markersize=10)
-    ax[0][0].plot(all_outputs["x_ekf"][-1], all_outputs["y_ekf"][-1], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf"][-1] / (2*pi) - 90), markersize=10)
-    
-    ax[0][0].plot(all_outputs["x_tracker0"], all_outputs["y_tracker0"], color='magenta', linestyle='--')
-    ax[0][0].plot(all_outputs["x_tracker1"], all_outputs["y_tracker1"], color='red', linestyle='--')
-    ax[0][0].plot(all_outputs["x_ekf"], all_outputs["y_ekf"], color='purple', linestyle='--')
+                ax[0][0].plot(p_target0.get_x(pf_target0["s"][i]), p_target0.get_y(pf_target0["s"][i]), color='lightskyblue', marker='o', label='_nolegend_')
+                ax[0][0].plot(p_target1.get_x(pf_target1["s"][i]), p_target1.get_y(pf_target1["s"][i]), color='orange', marker='o', label='_nolegend_')
+                ax[0][0].plot(p_target2.get_x(pf_target2["s"][i]), p_target2.get_y(pf_target2["s"][i]), color='limegreen', marker='o', label='_nolegend_')
+                ax[0][0].plot(p_target1.get_x(cfc_centre[i]) + p_tracker0.get_x(pf_tracker0["s"][i]), p_target1.get_y(cfc_centre[i]) + p_tracker0.get_y(pf_tracker0["s"][i]), color='violet', marker='o', label='_nolegend_')
+                ax[0][0].plot(p_target1.get_x(cfc_centre[i]) + p_tracker1.get_x(pf_tracker1["s"][i]), p_target1.get_y(cfc_centre[i]) + p_tracker1.get_y(pf_tracker1["s"][i]), color='orangered', marker='o', label='_nolegend_')
 
-    ax[0][0].legend(['target path0', 'target path1', 'target path2', 'target0', 'target1', 'target2', 'moving path', 'tracker0', 'tracker1', 'estimate'], bbox_to_anchor=(0.75, 0.75))
-    # Labels and grid
-    ax[0][0].set_title('Position plot')
-    ax[0][0].set_xlabel('X [m]')
-    ax[0][0].set_ylabel('Y [m]')
-    ax[0][0].grid()
-    ax[0][0].axis('equal')
-    
+                ax[0][0].plot(all_outputs["x_target0"][i], all_outputs["y_target0"][i], color='tab:blue', marker='o')
+                ax[0][0].plot(all_outputs["x_target1"][i], all_outputs["y_target1"][i], color='tab:orange', marker='o')
+                ax[0][0].plot(all_outputs["x_target2"][i], all_outputs["y_target2"][i], color='tab:green', marker='o')
+                ax[0][0].plot(all_outputs["x_target0"][:i], all_outputs["y_target0"][:i], color='tab:blue', linestyle='--', label='_nolegend_')
+                ax[0][0].plot(all_outputs["x_target1"][:i], all_outputs["y_target1"][:i], color='tab:orange', linestyle='--', label='_nolegend_')
+                ax[0][0].plot(all_outputs["x_target2"][:i], all_outputs["y_target2"][:i], color='tab:green', linestyle='--', label='_nolegend_')
 
-    # Velocity plot
-    ax[1][0].set_title('Velocity plot')
-    ax[1][0].plot(T, all_outputs["velocity_target0"])
-    ax[1][0].plot(T, all_outputs["velocity_target1"])
-    ax[1][0].plot(T, all_outputs["velocity_target2"])
-    ax[1][0].plot(T, all_outputs["velocity_tracker0"], color='magenta', linestyle='-')
-    ax[1][0].plot(T, all_outputs["velocity_tracker1"], color='red', linestyle='-')
-    #ax[1].set_ylim([0.98, 1.02])
-    ax[1][0].set_xlabel('time [s]')
-    ax[1][0].set_ylabel('Velocity [m/s]')
-    ax[1][0].legend(['target0', 'target1', 'target2', 'tracker0', 'tracker1'])
-    ax[1][0].grid()
+                p_r = pg.Path()
+                circle_r = pg.Circle(resolution, np.array([p_target1.get_x(cfc_centre[i]), p_target1.get_y(cfc_centre[i])]), 0., paths["p_tracker0"].path_list[0].arc, paths["p_tracker0"].path_list[0].radius, paths["p_tracker0"].path_list[0].start)
+                p_r.append_path(circle_r)
+                p_r.plot_path(ax[0][0])
 
+                ax[0][0].plot(all_outputs["x_tracker0"][i], all_outputs["y_tracker0"][i], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker0"][i] / (2*pi) - 90), markersize=10)
+                ax[0][0].plot(all_outputs["x_tracker1"][i], all_outputs["y_tracker1"][i], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][i] / (2*pi) - 90), markersize=10)
+                
+                ax[0][0].plot(all_outputs["x_tracker0"][:i], all_outputs["y_tracker0"][:i], color='magenta', linestyle='--')
+                ax[0][0].plot(all_outputs["x_tracker1"][:i], all_outputs["y_tracker1"][:i], color='red', linestyle='--')
+                
+                ax[0][0].legend([
+                    'Target Path 0',
+                    'Target Path 1',
+                    'Target Path 2',
+                    'Target 0',
+                    'Target 1',
+                    'Target 2',
+                    'Moving Path',
+                    'Tracker 0',
+                    'Tracker 1'
+                    ],
+                    bbox_to_anchor=(0.75, 0.75), prop={'size': 6})
 
+                # Labels and grid
+                ax[0][0].set_xlabel('X [m]')
+                ax[0][0].set_ylabel('Y [m]')
+                ax[0][0].grid()
+                ax[0][0].axis('equal')
 
-    # Range-measurement plot
-    measurements0 = [[], []]
-    measurements1 = [[], []]
-    for j in range(len(T)):
-        if all_outputs["range0"][j] >= 0:
-            measurements0[0].append(T[j])
-            measurements0[1].append(all_outputs["range0"][j])
-        if all_outputs["range1"][j] >= 0:
-            measurements1[0].append(T[j])
-            measurements1[1].append(all_outputs["range1"][j])
-    ax[0][1].plot(measurements0[0], measurements0[1], color='magenta', linestyle='-')
-    ax[0][1].plot(measurements1[0], measurements1[1], color='red', linestyle='-')
-    ax[0][1].set_xlabel('time [s]')
-    ax[0][1].set_ylabel('distance measure [m]')
-    ax[0][1].legend(['tracker0', 'tracker1'])
-    ax[0][1].set_title('Range-measurement Plot')
-    ax[0][1].grid()
+                # Velocity plot
+                ax[1][0].set_title('Velocity plot', y=1.0, pad=-14)
+                ax[1][0].plot(T[:i], all_outputs["velocity_target0"][:i], color='tab:blue', linestyle='-')
+                ax[1][0].plot(T[:i], all_outputs["velocity_target1"][:i], color='tab:orange', linestyle='-')
+                ax[1][0].plot(T[:i], all_outputs["velocity_target2"][:i], color='tab:green', linestyle='-')
+                ax[1][0].plot(T[:i], all_outputs["velocity_tracker0"][:i], color='magenta', linestyle='-')
+                ax[1][0].plot(T[:i], all_outputs["velocity_tracker1"][:i], color='red', linestyle='-')
+                # ax[1][0].plot(T[:i], mpf_tracker0["velocity"][:i], color='magenta', linestyle='-')
+                # ax[1][0].plot(T[:i], mpf_tracker1["velocity"][:i], color='red', linestyle='-')
+                ax[1][0].set_xlabel('time [s]')
+                ax[1][0].set_ylabel('velocity [m/s]')
+                ax[1][0].legend([
+                    'Target 0',
+                    'Target 1',
+                    'Target 2',
+                    'Tracker 0',
+                    'Tracker 1'], prop={'size': 6})
+                ax[1][0].grid()
 
+                # Cooperative Formation Control Plot
+                ax[0][1].set_title('Cooperative Formation Control', y=1.0, pad=-14)
+                ax[0][1].plot(T[:i], cfc_centre[:i], c='tab:red')
+                ax[0][1].plot(T[:i], pf_target1["s"][:i], c='tab:orange')
+                broadcasts = [[], []]
+                for j in range(len(cfc_tracker0["broadcasts"])):
+                    if cfc_tracker0["broadcasts"][j] <= T[i]:
+                        broadcasts[0].append(cfc_tracker0["broadcasts"][j])
+                for j in range(len(cfc_target1["broadcasts"])):
+                    if cfc_target1["broadcasts"][j] <= T[i]:
+                        broadcasts[1].append(cfc_target1["broadcasts"][j])
+                ax[0][1].scatter(broadcasts[0], np.full(len(broadcasts[0]), -1), c='tab:red', marker='+')
+                ax[0][1].scatter(broadcasts[1], np.full(len(broadcasts[1]), -1), c='tab:orange', marker='+')
+                ax[0][1].set_xlabel('time [s]')
+                ax[0][1].set_ylabel('gammas')
+                ax[0][1].legend([
+                    'Moving Path',
+                    'Target 1',
+                    'Broadcast Moving Path',
+                    'Broadcast Target'], prop={'size': 6})
+                ax[0][1].grid()
 
-    # EKF Velocity plot
-    error = []
-    for j in range(len(T)):
-        error.append(np.sqrt(np.power(ekf_tracker["x"][j] - all_outputs["x_target1"][j], 2) + np.power(ekf_tracker["y"][j] - all_outputs["y_target1"][j], 2)))
-    ax[1][1].plot(T, error)
-    ax[1][1].set_xlabel('time [s]')
-    ax[1][1].set_ylabel('distance [m]')
-    #ax[1][1].legend(['x_dot', 'y_dot', 'velocity'])
-    ax[1][1].set_title('EKF Error plot')
-    ax[1][1].grid()
+                # ETC Broadcasting plot
+                ax[1][1].set_title('ETC Broadcasting', y=1.0, pad=-14)
+                broadcasts = [[], [], [], [], []]
+                for j in range(len(cpf_target0["broadcasts"])):
+                    if cpf_target0["broadcasts"][j] <= T[i]:
+                        broadcasts[0].append(cpf_target0["broadcasts"][j])
+                for j in range(len(cpf_target1["broadcasts"])):
+                    if cpf_target1["broadcasts"][j] <= T[i]:
+                        broadcasts[1].append(cpf_target1["broadcasts"][j])
+                for j in range(len(cpf_target2["broadcasts"])):
+                    if cpf_target2["broadcasts"][j] <= T[i]:
+                        broadcasts[2].append(cpf_target2["broadcasts"][j])
+                for j in range(len(cpf_tracker0["broadcasts"])):
+                    if cpf_tracker0["broadcasts"][j] <= T[i]:
+                        broadcasts[3].append(cpf_tracker0["broadcasts"][j])
+                for j in range(len(cpf_tracker1["broadcasts"])):
+                    if cpf_tracker1["broadcasts"][j] <= T[i]:
+                        broadcasts[4].append(cpf_tracker1["broadcasts"][j])
 
-    
-    # s1 y1 plot
-    ax[0][2].set_title('Trackers\' Lapierre s1 and y1')
-    ax[0][2].plot(T, pf_tracker0["y1_geo"])
-    ax[0][2].plot(T, pf_tracker0["s1_geo"])
-    ax[0][2].plot(T, pf_tracker1["y1_geo"])
-    ax[0][2].plot(T, pf_tracker1["s1_geo"])
-    ax[1][2].grid()
-    ax[0][2].legend(['tracker0 y1', 'tracker0 s1', 'tracker1 y1', 'tracker1 s1'])
-    
-    # Lapierre output u plot
-    ax[1][2].set_title('Lapierre output u')
-    ax[1][2].plot(T, all_outputs["u_target0"])
-    ax[1][2].plot(T, all_outputs["u_target1"])
-    ax[1][2].plot(T, all_outputs["u_target2"])
-    ax[1][2].plot(T, all_outputs["u_tracker0"], color='magenta', linestyle='-')
-    ax[1][2].plot(T, all_outputs["u_tracker1"], color='red', linestyle='-')
-    ax[1][2].grid()
-    ax[1][2].legend(['target0', 'target1', 'target2', 'tracker0', 'tracker1'])
-    
+                ax[1][1].scatter(broadcasts[0], np.full(len(broadcasts[0]), 0), c='tab:blue', marker='+')
+                ax[1][1].scatter(broadcasts[1], np.full(len(broadcasts[1]), 1), c='tab:orange', marker='+')
+                ax[1][1].scatter(broadcasts[2], np.full(len(broadcasts[2]), 2), c='tab:green', marker='+')
+                ax[1][1].scatter(broadcasts[3], np.full(len(broadcasts[3]), 3), c='magenta', marker='+')
+                ax[1][1].scatter(broadcasts[4], np.full(len(broadcasts[4]), 4), c='red', marker='+')
+                if T[i] != 0:
+                    ax[1][1].set_xlim([0, T[i]])
+                ax[1][1].set_xlabel('time [s]')
+                ax[1][1].set_ylabel('Broadcasts')
+                ax[1][1].legend([
+                    'Target 0',
+                    'Target 1',
+                    'Target 2',
+                    'Tracker 0',
+                    'Tracker 1'], prop={'size': 6})
+                ax[1][1].grid()
 
-    fig.show()
-    plt.pause(100)
-
-    """
-
-    for i in range(len(T)):
-        if i % frame_rate == 0 or i == len(T):
-
-            if i != len(T) - 1:
-                ax[0][0].cla()
-                ax[1][0].cla()
-                ax[0][1].cla()
-                ax[1][1].cla()
-                ax[0][2].cla()
-                ax[1][2].cla()
-
-            
-            ax[0][0].set_title('Position plot', y=1.0, pad=-14)
-            p_target0.plot_path(ax[0][0])
-            p_target1.plot_path(ax[0][0])
-            p_target2.plot_path(ax[0][0])
-
-            ax[0][0].plot(p_target0.get_x(pf_target0["s"][i]), p_target0.get_y(pf_target0["s"][i]), color='lightskyblue', marker='o', label='_nolegend_')
-            ax[0][0].plot(p_target1.get_x(pf_target1["s"][i]), p_target1.get_y(pf_target1["s"][i]), color='orange', marker='o', label='_nolegend_')
-            ax[0][0].plot(p_target2.get_x(pf_target2["s"][i]), p_target2.get_y(pf_target2["s"][i]), color='limegreen', marker='o', label='_nolegend_')
-            ax[0][0].plot(p_target1.get_x(cfc_centre[i]) + p_tracker0.get_x(pf_tracker0["s"][i]), p_target1.get_y(cfc_centre[i]) + p_tracker0.get_y(pf_tracker0["s"][i]), color='violet', marker='o', label='_nolegend_')
-            ax[0][0].plot(p_target1.get_x(cfc_centre[i]) + p_tracker1.get_x(pf_tracker1["s"][i]), p_target1.get_y(cfc_centre[i]) + p_tracker1.get_y(pf_tracker1["s"][i]), color='orangered', marker='o', label='_nolegend_')
-
-            ax[0][0].plot(all_outputs["x_target0"][i], all_outputs["y_target0"][i], color='tab:blue', marker='o')
-            ax[0][0].plot(all_outputs["x_target1"][i], all_outputs["y_target1"][i], color='tab:orange', marker='o')
-            ax[0][0].plot(all_outputs["x_target2"][i], all_outputs["y_target2"][i], color='tab:green', marker='o')
-            ax[0][0].plot(all_outputs["x_target0"][:i], all_outputs["y_target0"][:i], color='tab:blue', linestyle='--', label='_nolegend_')
-            ax[0][0].plot(all_outputs["x_target1"][:i], all_outputs["y_target1"][:i], color='tab:orange', linestyle='--', label='_nolegend_')
-            ax[0][0].plot(all_outputs["x_target2"][:i], all_outputs["y_target2"][:i], color='tab:green', linestyle='--', label='_nolegend_')
-
-            p_r = pg.Path()
-            circle_r = pg.Circle(resolution, np.array([p_target1.get_x(cfc_centre[i]), p_target1.get_y(cfc_centre[i])]), 0., paths["p_tracker0"].path_list[0].arc, paths["p_tracker0"].path_list[0].radius, paths["p_tracker0"].path_list[0].start)
-            p_r.append_path(circle_r)
-            p_r.plot_path(ax[0][0])
-
-            ax[0][0].plot(all_outputs["x_tracker0"][i], all_outputs["y_tracker0"][i], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker0"][i] / (2*pi) - 90), markersize=10)
-            ax[0][0].plot(all_outputs["x_tracker1"][i], all_outputs["y_tracker1"][i], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][i] / (2*pi) - 90), markersize=10)
-            
-            ax[0][0].plot(all_outputs["x_tracker0"][:i], all_outputs["y_tracker0"][:i], color='magenta', linestyle='--')
-            ax[0][0].plot(all_outputs["x_tracker1"][:i], all_outputs["y_tracker1"][:i], color='red', linestyle='--')
-            
-            ax[0][0].legend([
-                'Target Path 0',
-                'Target Path 1',
-                'Target Path 2',
-                'Target 0',
-                'Target 1',
-                'Target 2',
-                'Moving Path',
-                'Tracker 0',
-                'Tracker 1'
-                ],
-                bbox_to_anchor=(0.75, 0.75), prop={'size': 6})
-
-            # Labels and grid
-            ax[0][0].set_xlabel('X [m]')
-            ax[0][0].set_ylabel('Y [m]')
-            ax[0][0].grid()
-            ax[0][0].axis('equal')
-
-            # Velocity plot
-            ax[1][0].set_title('Velocity plot', y=1.0, pad=-14)
-            ax[1][0].plot(T[:i], all_outputs["velocity_target0"][:i], color='tab:blue', linestyle='-')
-            ax[1][0].plot(T[:i], all_outputs["velocity_target1"][:i], color='tab:orange', linestyle='-')
-            ax[1][0].plot(T[:i], all_outputs["velocity_target2"][:i], color='tab:green', linestyle='-')
-            ax[1][0].plot(T[:i], all_outputs["velocity_tracker0"][:i], color='magenta', linestyle='-')
-            ax[1][0].plot(T[:i], all_outputs["velocity_tracker1"][:i], color='red', linestyle='-')
-            # ax[1][0].plot(T[:i], mpf_tracker0["velocity"][:i], color='magenta', linestyle='-')
-            # ax[1][0].plot(T[:i], mpf_tracker1["velocity"][:i], color='red', linestyle='-')
-            ax[1][0].set_xlabel('time [s]')
-            ax[1][0].set_ylabel('velocity [m/s]')
-            ax[1][0].legend([
-                'Target 0',
-                'Target 1',
-                'Target 2',
-                'Tracker 0',
-                'Tracker 1'], prop={'size': 6})
-            ax[1][0].grid()
-
-            # Cooperative Formation Control Plot
-            ax[0][1].set_title('Cooperative Formation Control', y=1.0, pad=-14)
-            ax[0][1].plot(T[:i], cfc_centre[:i], c='tab:red')
-            ax[0][1].plot(T[:i], pf_target1["s"][:i], c='tab:orange')
-            broadcasts = [[], []]
-            for j in range(len(cfc_tracker0["broadcasts"])):
-                if cfc_tracker0["broadcasts"][j] <= T[i]:
-                    broadcasts[0].append(cfc_tracker0["broadcasts"][j])
-            for j in range(len(cfc_target1["broadcasts"])):
-                if cfc_target1["broadcasts"][j] <= T[i]:
-                    broadcasts[1].append(cfc_target1["broadcasts"][j])
-            ax[0][1].scatter(broadcasts[0], np.full(len(broadcasts[0]), -1), c='tab:red', marker='+')
-            ax[0][1].scatter(broadcasts[1], np.full(len(broadcasts[1]), -1), c='tab:orange', marker='+')
-            ax[0][1].set_xlabel('time [s]')
-            ax[0][1].set_ylabel('gammas')
-            ax[0][1].legend([
-                'Moving Path',
-                'Target 1',
-                'Broadcast Moving Path',
-                'Broadcast Target'], prop={'size': 6})
-            ax[0][1].grid()
-
-            # ETC Broadcasting plot
-            ax[1][1].set_title('ETC Broadcasting', y=1.0, pad=-14)
-            broadcasts = [[], [], [], [], []]
-            for j in range(len(cpf_target0["broadcasts"])):
-                if cpf_target0["broadcasts"][j] <= T[i]:
-                    broadcasts[0].append(cpf_target0["broadcasts"][j])
-            for j in range(len(cpf_target1["broadcasts"])):
-                if cpf_target1["broadcasts"][j] <= T[i]:
-                    broadcasts[1].append(cpf_target1["broadcasts"][j])
-            for j in range(len(cpf_target2["broadcasts"])):
-                if cpf_target2["broadcasts"][j] <= T[i]:
-                    broadcasts[2].append(cpf_target2["broadcasts"][j])
-            for j in range(len(cpf_tracker0["broadcasts"])):
-                if cpf_tracker0["broadcasts"][j] <= T[i]:
-                    broadcasts[3].append(cpf_tracker0["broadcasts"][j])
-            for j in range(len(cpf_tracker1["broadcasts"])):
-                if cpf_tracker1["broadcasts"][j] <= T[i]:
-                    broadcasts[4].append(cpf_tracker1["broadcasts"][j])
-
-            ax[1][1].scatter(broadcasts[0], np.full(len(broadcasts[0]), 0), c='tab:blue', marker='+')
-            ax[1][1].scatter(broadcasts[1], np.full(len(broadcasts[1]), 1), c='tab:orange', marker='+')
-            ax[1][1].scatter(broadcasts[2], np.full(len(broadcasts[2]), 2), c='tab:green', marker='+')
-            ax[1][1].scatter(broadcasts[3], np.full(len(broadcasts[3]), 3), c='magenta', marker='+')
-            ax[1][1].scatter(broadcasts[4], np.full(len(broadcasts[4]), 4), c='red', marker='+')
-            if T[i] != 0:
-                ax[1][1].set_xlim([0, T[i]])
-            ax[1][1].set_xlabel('time [s]')
-            ax[1][1].set_ylabel('Broadcasts')
-            ax[1][1].legend([
-                'Target 0',
-                'Target 1',
-                'Target 2',
-                'Tracker 0',
-                'Tracker 1'], prop={'size': 6})
-            ax[1][1].grid()
-
-            # Vehicle projection on path plot
-            ax[0][2].set_title('Vehicle Postion on Path', y=1.0, pad=-14)
-            ax[0][2].plot(T[:i], pf_target0["s"][:i], c='tab:blue')
-            ax[0][2].plot(T[:i], pf_target1["s"][:i], c='tab:orange')
-            ax[0][2].plot(T[:i], pf_target2["s"][:i], c='tab:green')
-            ax[0][2].plot(T[:i], pf_tracker0["s"][:i], c='magenta')
-            ax[0][2].plot(T[:i], pf_tracker1["s"][:i], c='red')
-            ax[0][2].set_xlabel('time [s]')
-            ax[0][2].set_ylabel('gammas')
-            ax[0][2].legend([
-                'Target 0',
-                'Target 1',
-                'Target 2',
-                'Tracker 0',
-                'Tracker 1'], prop={'size': 6})
-            ax[0][2].grid()
-            
-            # Lapierre output u plot
-            ax[1][2].set_title('Lapierre output u', y=1.0, pad=-14)
-            ax[1][2].plot(T[:i], all_outputs["u_target0"][:i])
-            ax[1][2].plot(T[:i], all_outputs["u_target1"][:i])
-            ax[1][2].plot(T[:i], all_outputs["u_target2"][:i])
-            ax[1][2].plot(T[:i], all_outputs["u_tracker0"][:i], color='magenta', linestyle='-')
-            ax[1][2].plot(T[:i], all_outputs["u_tracker1"][:i], color='red', linestyle='-')
-            ax[1][2].set_xlabel('time [s]')
-            ax[1][2].set_ylabel('angle rate [rad/s]')
-            ax[1][2].set_ylim([-5, 5])
-            ax[1][2].grid()
-            ax[1][2].legend([
-                'Target 0',
-                'Target 1',
-                'Target 2',
-                'Tracker 0',
-                'Tracker 1'], prop={'size': 6})
+                # Vehicle projection on path plot
+                ax[0][2].set_title('Vehicle Postion on Path', y=1.0, pad=-14)
+                ax[0][2].plot(T[:i], pf_target0["s"][:i], c='tab:blue')
+                ax[0][2].plot(T[:i], pf_target1["s"][:i], c='tab:orange')
+                ax[0][2].plot(T[:i], pf_target2["s"][:i], c='tab:green')
+                ax[0][2].plot(T[:i], pf_tracker0["s"][:i], c='magenta')
+                ax[0][2].plot(T[:i], pf_tracker1["s"][:i], c='red')
+                ax[0][2].set_xlabel('time [s]')
+                ax[0][2].set_ylabel('gammas')
+                ax[0][2].legend([
+                    'Target 0',
+                    'Target 1',
+                    'Target 2',
+                    'Tracker 0',
+                    'Tracker 1'], prop={'size': 6})
+                ax[0][2].grid()
+                
+                # Lapierre output u plot
+                ax[1][2].set_title('Lapierre output u', y=1.0, pad=-14)
+                ax[1][2].plot(T[:i], all_outputs["u_target0"][:i])
+                ax[1][2].plot(T[:i], all_outputs["u_target1"][:i])
+                ax[1][2].plot(T[:i], all_outputs["u_target2"][:i])
+                ax[1][2].plot(T[:i], all_outputs["u_tracker0"][:i], color='magenta', linestyle='-')
+                ax[1][2].plot(T[:i], all_outputs["u_tracker1"][:i], color='red', linestyle='-')
+                ax[1][2].set_xlabel('time [s]')
+                ax[1][2].set_ylabel('angle rate [rad/s]')
+                ax[1][2].set_ylim([-5, 5])
+                ax[1][2].grid()
+                ax[1][2].legend([
+                    'Target 0',
+                    'Target 1',
+                    'Target 2',
+                    'Tracker 0',
+                    'Tracker 1'], prop={'size': 6})
 
 
-            fig.show()
-            plt.pause(0.001)
-    
-    
-    input("Press Enter to end plotting...")        
-    plt.pause(0.1)
+                fig.show()
+                plt.pause(0.001)
+        
+        
+        input("Press Enter to end plotting...")        
+        plt.pause(0.1)

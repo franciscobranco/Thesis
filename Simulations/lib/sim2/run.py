@@ -8,6 +8,7 @@ Description: Continuous Communication Cooperative Path Following example
 
 
 import numpy as np
+import pickle
 from math import pi
 
 import pathgeneration as pg
@@ -15,14 +16,17 @@ import lib.sim2.systembuild as sb
 import lib.sim2.plot as plotting
 
 
-def simulation():
+def simulation(file_name):
+    if file_name != "":
+        f = open("lib\sim2\\" + file_name + ".txt", 'wb')
+
     # Path parameters
     resolution = 40
     start = 0
     position0 = np.array([0, 0])
     position1 = np.array([0, 0])
     orientation = -pi/2
-    size = 15.0
+    size = 25.0
     arc = 2*pi
     radius = size
 
@@ -36,7 +40,7 @@ def simulation():
     p1.append_path(circle1)
 
     # Time parameters
-    total_time = 120
+    total_time = 200
     num_points = total_time * 20
     T, dt = np.linspace(start=0, stop=total_time, num=num_points, retstep=True)
     
@@ -46,7 +50,7 @@ def simulation():
     theta_m = 0
     s = 0
 
-    nominal_speed_profile = 0.8
+    nominal_speed_profile = 0.5
 
     cpf_params = {
         "norm0": p0.total_distance,
@@ -68,5 +72,14 @@ def simulation():
     past_values = auv_pf_system.past_values()
 
     paths = {"p0": p0, "p1": p1}
+
+    if file_name != "":
+        pickle.dump(paths, f)
+        pickle.dump(num_points, f)
+        pickle.dump(total_time, f)
+        pickle.dump(resolution, f)
+        pickle.dump(T, f)
+        pickle.dump(past_values, f)
+        f.close()
 
     plotting.plot(paths, num_points, total_time, resolution, T, past_values)

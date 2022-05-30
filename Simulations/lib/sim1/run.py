@@ -7,6 +7,7 @@ Created: 24/08/2021
 
 
 import numpy as np
+import pickle
 from math import pi
 
 import pathgeneration as pg
@@ -14,13 +15,16 @@ import lib.sim1.systembuild as sb
 import lib.sim1.plot as plotting
 
 
-def simulation():
+def simulation(file_name):
+    if file_name != "":
+        f = open("lib\sim1\\" + file_name + ".txt", 'wb')
+
     # Path parameters
     resolution = 40
     start = 0
     position = np.array([10, 5])
     orientation = -pi/2
-    size = 5.0
+    size = 25.0
     arc = 2*pi
     radius = size
 
@@ -30,7 +34,7 @@ def simulation():
     p1.append_path(circle1)
 
     # Time parameters
-    total_time = 50
+    total_time = 200
     num_points = total_time * 20
     T, dt = np.linspace(start=0, stop=total_time, num=num_points, retstep=True)
 
@@ -59,6 +63,15 @@ def simulation():
     past_values = auv_pf_system.past_values()
 
     paths = {"p1": p1}
+
+    if file_name != "":
+        pickle.dump(paths, f)
+        pickle.dump(num_points, f)
+        pickle.dump(total_time, f)
+        pickle.dump(resolution, f)
+        pickle.dump(T, f)
+        pickle.dump(past_values, f)
+        f.close()
 
     # Plotting
     plotting.plot(paths, num_points, total_time, resolution, T, past_values)

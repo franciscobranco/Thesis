@@ -10,6 +10,7 @@ Description: Moving Path Following example
 
 import numpy as np
 from math import pi
+import pickle
 import matplotlib.pyplot as plt
 
 import pathgeneration as pg
@@ -17,7 +18,10 @@ import lib.sim4.systembuild as sb
 import lib.sim4.plot as plotting
 
 
-def simulation():
+def simulation(file_name):
+    if file_name != "":
+        f = open("lib\sim4\\" + file_name + ".txt", 'wb')
+
     # Path parameters
     resolution = 40
     start = 0
@@ -88,5 +92,14 @@ def simulation():
     paths = {"p0": p0, "p1": p1}
     # Get past values for plotting
     past_values = auv_system.past_values()
+
+    if file_name != "":
+        pickle.dump(paths, f)
+        pickle.dump(num_points, f)
+        pickle.dump(total_time, f)
+        pickle.dump(resolution, f)
+        pickle.dump(T, f)
+        pickle.dump(past_values, f)
+        f.close()
 
     plotting.plot(paths, num_points, total_time, resolution, T, past_values, factor)

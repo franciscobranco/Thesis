@@ -2,21 +2,25 @@
 
 Author: Francisco Branco
 Created: 04/05/2022
-Description: Formation Control Example
+Description: Cooperative Formation Control Example
 
 """
 
 
 
 import numpy as np
+import pickle
 from math import pi
 
 import pathgeneration as pg
-import lib.sim11.systembuild as sb
-import lib.sim11.plot as plotting
+import lib.sim12.systembuild as sb
+import lib.sim12.plot as plotting
 
 
-def simulation():
+def simulation(file_name):
+    if file_name != "":
+        f = open("lib\sim12\\" + file_name + ".txt", 'wb')
+
     # Path parameters
     resolution = 40
 
@@ -30,7 +34,7 @@ def simulation():
     start_tracker = 0.0
     position_tracker = np.array([0.0, 0.0])
     orientation_tracker = -pi/2
-    size_tracker = 14.0
+    size_tracker = 18.0
     arc_tracker = 2*pi
     radius_tracker = size_tracker
 
@@ -69,7 +73,7 @@ def simulation():
     s = 0.0
 
     target_speed = 0.2
-    tracker_speed = target_speed * 2
+    tracker_speed = target_speed * 2.5
 
     pf_params = {
         "gamma": 1.0,
@@ -88,15 +92,15 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": p_target0.total_distance / (p_target1.total_distance / (target_speed - 0.1)),
-        "k_csi1": target_speed - 0.1,
-        "k_csi2": p_target2.total_distance / (p_target1.total_distance / (target_speed - 0.1)),
+        "k_csi0": p_target0.total_distance / (p_target1.total_distance / (target_speed - 0.05)),
+        "k_csi1": target_speed - 0.05,
+        "k_csi2": p_target2.total_distance / (p_target1.total_distance / (target_speed - 0.05)),
         "norm0": p_target0.total_distance,
         "norm1": p_target1.total_distance,
         "norm2": p_target2.total_distance,
-        "speed_profile0": p_target0.total_distance / (p_target1.total_distance / target_speed),
+        "speed_profile0": p_target0.total_distance / (p_target1.total_distance / (target_speed)),
         "speed_profile1": target_speed,
-        "speed_profile2": p_target2.total_distance / (p_target1.total_distance / target_speed), # 0.24
+        "speed_profile2": p_target2.total_distance / (p_target1.total_distance / (target_speed)), # 0.24
     }
 
     cpf_params_tracker = {
@@ -108,8 +112,8 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": tracker_speed - 0.1,
-        "k_csi1": tracker_speed - 0.1,
+        "k_csi0": tracker_speed - 0.1, # tracker_speed
+        "k_csi1": tracker_speed - 0.1, # tracker_speed
         "norm0": p_tracker0.total_distance,
         "norm1": p_tracker1.total_distance,
         "speed_profile0": tracker_speed,
@@ -125,13 +129,14 @@ def simulation():
         "epsilon": 0.1,
         "epsilon0": np.power(10.0, -4),
         "theta": 0.99,
-        "k_csi0": target_speed,
-        "k_csi1": target_speed + 0.2,
+        "k_csi0": target_speed - 0.1,
+        "k_csi1": target_speed - 0.1, # target_speed + 0.2
         "norm0": p_target1.total_distance,
         "norm1": p_target1.total_distance,
         "speed_profile0": target_speed,
         "speed_profile1": target_speed,
-        "kf": 1
+        "kf": 1,
+        "kg": 1
     }
 
     # EKF parameters
@@ -164,7 +169,7 @@ def simulation():
     C_matrix = np.array([[1, 0, 0, 0],
                          [0, 1, 0, 0]])
 
-    doppler_var = 0.1#np.array([[0.01, 0], [0, 0.01]])
+    doppler_var = 1#np.array([[0.01, 0], [0, 0.01]])
 
     ckf_params = {
         "A_matrix": A_matrix,
@@ -174,12 +179,14 @@ def simulation():
         "doppler_var": doppler_var
     }
 
+    smart_cpf = 0.01
+    tracker = 0.1
+
     # Amount of time in seconds the target is not moving at the beginning
     time_halted = 0
 
-
     # System creation along with initial conditions
-    auv_system = sb.DoubleASVCFCTripleAUV(
+    auv_system = sb.DoubleASVCFCTripleAUVFilter(
         p_target0,
         p_target1,
         p_target2,
@@ -193,25 +200,27 @@ def simulation():
         ckf_params=ckf_params,
         time_halted=time_halted,
         etc_type="Time",
+        smart_cpf=smart_cpf,
+        tracker=tracker,
         history=True,
         dt=dt
     )
 
     ic = {
-        "x_target0": -60.0,
-        "y_target0": -60.0,
+        "x_target0": -40.0,
+        "y_target0": -40.0,
         "theta_m_target0": theta_m,
         "s_target0": 0.125,
         "x_target1": -50.0,
         "y_target1": -50.0,
         "theta_m_target1": theta_m,
         "s_target1": 0.125,
-        "x_target2": -40.0,
-        "y_target2": -40.0,
+        "x_target2": -60.0,
+        "y_target2": -60.0,
         "theta_m_target2": theta_m,
         "s_target2": 0.125,
-        "x_follower0": -100.0,
-        "y_follower0": -100.0,
+        "x_follower0": -99.0,
+        "y_follower0": -99.0,
         "theta_m_follower0": theta_m,
         "s_follower0": s,
         "x_follower1": -100.0,
@@ -227,11 +236,18 @@ def simulation():
         #input()
 
 
-
-
     # Plotting
     paths = {"p_target0": p_target0, "p_target1": p_target1, "p_target2": p_target2, "p_tracker0": p_tracker0, "p_tracker1": p_tracker1}
     # Get past values for plotting
     past_values = auv_system.past_values()
+
+    if file_name != "":
+        pickle.dump(paths, f)
+        pickle.dump(num_points, f)
+        pickle.dump(total_time, f)
+        pickle.dump(resolution, f)
+        pickle.dump(T, f)
+        pickle.dump(past_values, f)
+        f.close()
 
     plotting.plot(paths, num_points, total_time, resolution, T, past_values)

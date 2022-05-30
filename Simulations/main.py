@@ -12,12 +12,12 @@ from os.path import exists
 import pickle
 
 # These modules need to be changed according to the simulation you wish to run
-from lib.sim11 import run
-from lib.sim11 import plot as plotting
+from lib.sim12 import run
+from lib.sim12 import plot as plotting
 
 
 if __name__ == '__main__':
-    simulation_path = "lib\sim11\\"
+    simulation_path = "lib\sim12\\"
 
     print("Welcome to the simulation world of Cooperative Multiple Formation of Vehicles!")
     print("Make sure not to forget about specifying which simulation you want to run and visualize in the code!\n")
