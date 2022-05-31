@@ -86,6 +86,7 @@ class DoubleASVCFCTripleAUV:
                 "velocity_target2": [],
                 "velocity_tracker0": [],
                 "velocity_tracker1": [],
+                "velocity_circle": []
             }
         else:
             state_history = False
@@ -350,6 +351,7 @@ class DoubleASVCFCTripleAUV:
             outputs["velocity_target2"] = outputs_cpf_target2["velocity"]
         outputs["velocity_tracker0"] = outputs_cpf_tracker0["velocity"]
         outputs["velocity_tracker1"] = outputs_cpf_tracker1["velocity"]
+        outputs["velocity_circle"] = outputs_cfc_tracker0["velocity"]
 
 
         # Save outputs for plotting

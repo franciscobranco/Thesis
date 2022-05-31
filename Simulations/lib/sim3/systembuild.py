@@ -15,7 +15,7 @@ import lib.cooperativepathfollowing as cpf
 
 
 class DoubleAUVCPFETC:
-    def __init__(self, path0, path1, k_csi=1, gamma=1, k1=1, k2=1, k_delta=1, theta_a=1/pi, cpf_params=None, etc_type="Time", history=False, dt=1):
+    def __init__(self, path0, path1, gamma=1, k1=1, k2=1, k_delta=1, theta_a=1/pi, cpf_params=None, etc_type="Time", history=False, dt=1):
         self.dt = dt
         
         #self.inputs = {"velocity": 0, "velocity_dot": 0}
@@ -51,11 +51,11 @@ class DoubleAUVCPFETC:
 
         self.kine0 = kn.Kinematics(saturate=0, state_history=state_history, dt=dt)
         self.pf_control0 = pf.Lapierre(some_path=path0, gamma=gamma, k1=k1, k2=k2, k_delta=k_delta, theta_a=theta_a, state_history=state_history, dt=dt)
-        self.cpf_control0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params, k_csi=k_csi, A_matrix=A_matrix, etc_type=etc_type, state_history=state_history, dt=1)
+        self.cpf_control0 = cpf.CPFDiscreteControllerETC(num_auv=2, id=0, params=cpf_params, k_csi=cpf_params["k_csi0"], A_matrix=A_matrix, etc_type=etc_type, state_history=state_history, dt=1)
         
         self.kine1 = kn.Kinematics(saturate=0, state_history=state_history, dt=dt)
         self.pf_control1 = pf.Lapierre(some_path=path1, gamma=gamma, k1=k1, k2=k2, k_delta=k_delta, theta_a=theta_a, state_history=state_history, dt=dt)
-        self.cpf_control1 = cpf.CPFDiscreteControllerETC(num_auv=2, id=1, params=cpf_params, k_csi=k_csi, A_matrix=A_matrix, etc_type=etc_type, state_history=state_history, dt=1)
+        self.cpf_control1 = cpf.CPFDiscreteControllerETC(num_auv=2, id=1, params=cpf_params, k_csi=cpf_params["k_csi1"], A_matrix=A_matrix, etc_type=etc_type, state_history=state_history, dt=1)
         
     def update(self, t):
         

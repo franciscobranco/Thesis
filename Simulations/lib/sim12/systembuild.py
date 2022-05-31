@@ -100,6 +100,7 @@ class DoubleASVCFCTripleAUVFilter:
                 "velocity_target2": [],
                 "velocity_tracker0": [],
                 "velocity_tracker1": [],
+                "velocity_circle": [],
                 "x_ekf0": [],
                 "y_ekf0": [],
                 "theta_ekf0": [],
@@ -502,6 +503,7 @@ class DoubleASVCFCTripleAUVFilter:
         outputs["velocity_target2"] = outputs_cpf_target2["velocity"]
         outputs["velocity_tracker0"] = outputs_cpf_tracker0["velocity"]
         outputs["velocity_tracker1"] = outputs_cpf_tracker1["velocity"]
+        outputs["velocity_circle"] = outputs_cfc_tracker0["velocity"]
         outputs["x_ekf0"] = outputs_ekf_target0["x"]
         outputs["y_ekf0"] = outputs_ekf_target0["y"]
         outputs["theta_ekf0"] = outputs_ekf_target0["theta"]

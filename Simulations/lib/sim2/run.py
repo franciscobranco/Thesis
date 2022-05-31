@@ -60,7 +60,7 @@ def simulation(file_name):
     }
 
     # System creation along with initial conditions
-    auv_pf_system = sb.DoubleAUVCPFContinuousCommunications(p0, p1, k_csi=0.1, cpf_params=cpf_params, gamma=1, k1=1, k2=0.3, k_delta=1, theta_a=0.8, history=True, dt=dt)
+    auv_pf_system = sb.DoubleAUVCPFContinuousCommunications(p0, p1, k_csi=0.1, cpf_params=cpf_params, gamma=1, k1=1, k2=0.3, k_delta=0.5, theta_a=0.8, history=True, dt=dt)
     ic = {"x0": x, "y0": y, "theta_m0": theta_m, "s0": s, "x1": x, "y1": y + 5, "theta_m1": theta_m, "s1": s}
     auv_pf_system.set_initial_conditions(ic)
 

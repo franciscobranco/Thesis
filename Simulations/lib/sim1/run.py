@@ -46,7 +46,7 @@ def simulation(file_name):
 
 
     # System creation along with initial conditions
-    auv_pf_system = sb.SimpleAUVPathFollowing(some_path=p1, gamma=1, k1=1, k2=0.3, k_delta=1, theta_a=0.8, history=True, dt=dt)
+    auv_pf_system = sb.SimpleAUVPathFollowing(some_path=p1, gamma=1, k1=1, k2=0.3, k_delta=0.5, theta_a=0.8, history=True, dt=dt)
     ic = {"x": x, "y": y, "theta_m": theta_m, "s": s}
     auv_pf_system.set_initial_conditions(ic)
 

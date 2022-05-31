@@ -54,7 +54,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[0][0].set_xlabel('X [m]')
         ax[0][0].set_ylabel('Y [m]')
         ax[0][0].grid()
-        ax[0][0].legend(['vehicle0 path', 'vehicle1 path', 'vehicle0', 'vehicle1'])
+        ax[0][0].legend(['Vehicle Path 0', 'Vehicle Path 1', 'Vehicle 0', 'Vehicle 1'])
 
         # Velocity plot
         ax[1][0].set_title('Vehicle Velocity')
@@ -64,7 +64,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[1][0].set_xlabel('time [s]')
         ax[1][0].set_ylabel('velocity [m/s]')
         ax[1][0].grid()
-        ax[1][0].legend(['vehicle0', 'vehicle1'])
+        ax[1][0].legend(['Vehicle 0', 'Vehicle 1'])
 
 
         # Error plot
@@ -85,8 +85,9 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[1][1].scatter(cpf1["broadcasts"], np.full(len(cpf1["broadcasts"]), 1), color='tab:orange', marker='+')
         ax[1][1].set_xlabel('time [s]')
         ax[1][1].set_ylabel('Broadcasts')
+        ax[1][1].set_xlim([0, T[-1]])
         ax[1][1].grid()
-        ax[1][1].legend(['target', 'follower'])
+        ax[1][1].legend(['Vehicle 0', 'Vehicle 1'])
 
         
         # # s1 y1 plot

@@ -37,6 +37,58 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()
 
+    # # ax.set_title('Position plot')
+    # p_target0.plot_path(ax)
+    # p_target1.plot_path(ax)
+    # p_target2.plot_path(ax)
+
+    # ax.plot(p_target0.get_x(pf_target0["s"][-1]), p_target0.get_y(pf_target0["s"][-1]), color='lightskyblue', marker='o', label='_nolegend_')
+    # ax.plot(p_target1.get_x(pf_target1["s"][-1]), p_target1.get_y(pf_target1["s"][-1]), color='orange', marker='o', label='_nolegend_')
+    # ax.plot(p_target2.get_x(pf_target2["s"][-1]), p_target2.get_y(pf_target2["s"][-1]), color='limegreen', marker='o', label='_nolegend_')
+    # ax.plot(p_target1.get_x(cfc_centre[-1]) + p_tracker0.get_x(pf_tracker0["s"][-1]), p_target1.get_y(cfc_centre[-1]) + p_tracker0.get_y(pf_tracker0["s"][-1]), color='violet', marker='o', label='_nolegend_')
+    # ax.plot(p_target1.get_x(cfc_centre[-1]) + p_tracker1.get_x(pf_tracker1["s"][-1]), p_target1.get_y(cfc_centre[-1]) + p_tracker1.get_y(pf_tracker1["s"][-1]), color='orangered', marker='o', label='_nolegend_')
+
+    # ax.plot(all_outputs["x_target0"], all_outputs["y_target0"], color='tab:blue', linestyle='--', label='_nolegend_')
+    # ax.plot(all_outputs["x_target1"], all_outputs["y_target1"], color='tab:orange', linestyle='--', label='_nolegend_')
+    # ax.plot(all_outputs["x_target2"], all_outputs["y_target2"], color='tab:green', linestyle='--', label='_nolegend_')
+
+    # ax.plot(all_outputs["x_tracker0"], all_outputs["y_tracker0"], color='magenta', linestyle='--', label='_nolegend_')
+    # ax.plot(all_outputs["x_tracker1"], all_outputs["y_tracker1"], color='red', linestyle='--', label='_nolegend_')
+
+    # p_r = pg.Path()
+    # circle_r = pg.Circle(resolution, np.array([p_target1.get_x(cfc_centre[-1]), p_target1.get_y(cfc_centre[-1])]), 0., paths["p_tracker0"].path_list[0].arc, paths["p_tracker0"].path_list[0].radius, paths["p_tracker0"].path_list[0].start)
+    # p_r.append_path(circle_r)
+    # p_r.plot_path(ax)
+
+    # ax.plot(all_outputs["x_target0"][-1], all_outputs["y_target0"][-1], color='tab:blue', marker='o')
+    # ax.plot(all_outputs["x_target1"][-1], all_outputs["y_target1"][-1], color='tab:orange', marker='o')
+    # ax.plot(all_outputs["x_target2"][-1], all_outputs["y_target2"][-1], color='tab:green', marker='o')
+
+    # ax.plot(all_outputs["x_tracker0"][-1], all_outputs["y_tracker0"][-1], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker0"][-1] / (2*pi) - 90), markersize=10)
+    # ax.plot(all_outputs["x_tracker1"][-1], all_outputs["y_tracker1"][-1], color='red', marker=(3, 0, 360 * all_outputs["theta_m_tracker1"][-1] / (2*pi) - 90), markersize=10)
+    
+    # ax.legend([
+    #     'Target Path 0',
+    #     'Target Path 1',
+    #     'Target Path 2',
+    #     'Virtual Circle',
+    #     'Target 0',
+    #     'Target 1',
+    #     'Target 2',
+    #     'Tracker 0',
+    #     'Tracker 1'
+    #     ], prop={'size': 18})
+
+    # # Labels and grid
+    # ax.set_xlabel('X [m]')
+    # ax.set_ylabel('Y [m]')
+    # ax.grid()
+    # ax.axis('equal')
+
+    # fig.show()
+    # plt.pause(0.1)
+    # input()
+
     Movie = False
 
     frame_factor = 16
@@ -45,7 +97,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     legend_size = 8
     
     if Movie == False:
-        ax[0][0].set_title('Position plot')
+        ax[0][0].set_title('Vehicle Position')
         p_target0.plot_path(ax[0][0])
         p_target1.plot_path(ax[0][0])
         p_target2.plot_path(ax[0][0])
@@ -94,12 +146,13 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[0][0].axis('equal')
 
         # Velocity plot
-        ax[1][0].set_title('Velocity plot')
+        ax[1][0].set_title('Vehicle Velocity')
         ax[1][0].plot(T, all_outputs["velocity_target0"], color='tab:blue', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_target1"], color='tab:orange', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_target2"], color='tab:green', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_tracker0"], color='magenta', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_tracker1"], color='red', linestyle='-')
+        ax[1][0].plot(T, all_outputs["velocity_circle"], color='tab:red', linestyle='-')
         # ax[1][0].plot(T[:i], mpf_tracker0["velocity"][:i], color='magenta', linestyle='-')
         # ax[1][0].plot(T[:i], mpf_tracker1["velocity"][:i], color='red', linestyle='-')
         ax[1][0].set_xlabel('time [s]')
@@ -109,7 +162,8 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             'Target 1',
             'Target 2',
             'Tracker 0',
-            'Tracker 1'], prop={'size': legend_size})
+            'Tracker 1',
+            'Virtual Circle'], prop={'size': legend_size})
         ax[1][0].grid()
         ax[1][0].set_xlim([0, 1250])
         #ax[0][1].set_ylim([-5, 5])
@@ -168,7 +222,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[2][0].set_xlim([0, 1250])
         
         # Lapierre output u plot
-        ax[0][1].set_title('Lapierre Output')
+        ax[0][1].set_title('Vehicle PF Control Law')
         ax[0][1].plot(T, all_outputs["u_target0"])
         ax[0][1].plot(T, all_outputs["u_target1"])
         ax[0][1].plot(T, all_outputs["u_target2"])

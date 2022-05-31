@@ -76,7 +76,7 @@ def simulation(file_name):
         "gamma": 1.0,
         "k1": 1.0,
         "k2": 0.3,
-        "k_delta": 1.0,
+        "k_delta": 0.5,
         "theta_a": 0.8
     }
 
@@ -147,13 +147,16 @@ def simulation(file_name):
     C_matrix = np.array([[1, 0, 0, 0],
                          [0, 1, 0, 0]])
 
-    doppler_var = 1#np.array([[0.01, 0], [0, 0.01]])
+    doppler_var = 0.1#np.array([[0.01, 0], [0, 0.01]])
 
     ckf_params = {
         "A_matrix": A_matrix,
         "B_matrix": B_matrix,
         "C_matrix": C_matrix,
-        "Q_matrix": Q_matrix,
+        "Q_matrix": Q_matrix + np.array([[doppler_var, 0, 0, 0],
+                                           [0, doppler_var, 0, 0],
+                                           [0, 0, 0, 0],
+                                           [0, 0, 0, 0]]),
         "doppler_var": doppler_var
     }
 

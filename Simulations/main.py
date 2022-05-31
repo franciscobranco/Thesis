@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
     print("Welcome to the simulation world of Cooperative Multiple Formation of Vehicles!")
     print("Make sure not to forget about specifying which simulation you want to run and visualize in the code!\n")
+    print("Current simulation path: " + simulation_path + "\n")
     answer = input("Execute new simulation?[Y/n] ")
     if answer == "Y" or answer == "y" or answer == "yes" or answer == "Yes" or answer == "":
         name = input("Name your simulation: ")

@@ -50,16 +50,16 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
 
         ax[0].plot(all_outputs["x_target"][-1], all_outputs["y_target"][-1], color='tab:blue', marker='o')
 
-        ax[0].plot(all_outputs["x_tracker"][-1], all_outputs["y_tracker"][-1], color='m', marker=(3, 0, 360 * all_outputs["theta_m_tracker"][-1] / (2*pi) - 90), markersize=10)
+        ax[0].plot(all_outputs["x_tracker"][-1], all_outputs["y_tracker"][-1], color='magenta', marker=(3, 0, 360 * all_outputs["theta_m_tracker"][-1] / (2*pi) - 90), markersize=10)
 
         # Labels and grid
         ax[0].set_title('Vehicle Position')
         ax[0].set_xlabel('X [m]')
         ax[0].set_ylabel('Y [m]')
         ax[0].grid()
-        ax[0].legend(['target\'s path', 'virtual circle', 'target', 'tracker'])
+        ax[0].legend(['Target Path', 'Virtual Circle', 'Target', 'Tracker'])
 
-        # Velocity plot
+        # # Velocity plot
         # ax[1][0].set_title('Vehicle Velocity')
         # ax[1][0].plot(T, all_outputs["velocity0"])
         # ax[1][0].plot(T, all_outputs["velocity1"])
@@ -67,12 +67,10 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         # ax[1][0].set_xlabel('time [s]')
         # ax[1][0].set_ylabel('velocity [m/s]')
         # ax[1][0].grid()
-        # ax[1][0].legend(['target', 'follower'])
+        # ax[1][0].legend(['Target', 'Tracker'])
 
         # Error plot
-        # ax[1].set_title('Coordination Error')
         # difference = []
-        
         # for count in range(len(T)):
         #     if all_outputs["s0"][count] >= 0 and all_outputs["s0"][count] <= 0.25 and all_outputs["s1"][count] >= 0.75 and all_outputs["s1"][count] <= 1:
         #         difference.append(all_outputs["s0"][count] + 1 - all_outputs["s1"][count])
@@ -81,21 +79,27 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         #     else:
         #         difference.append(all_outputs["s0"][count] - all_outputs["s1"][count])
         #         #print(all_outputs["s0"][count] - all_outputs["s1"][count])
+        ax[1].set_title('Tracker PF Error')
+        error = []
+        for j in range(len(T)):
+            error.append(np.sqrt(np.power(all_outputs["x_tracker"][j] - all_outputs["x_target"][j] - p0.get_xy(all_outputs["s_tracker"][j])[0], 2) + np.power(all_outputs["y_tracker"][j] - all_outputs["y_target"][j] - p0.get_xy(all_outputs["s_tracker"][j])[1], 2)))
+        ax[1].plot(T, error, color='magenta', linestyle='-')
         
-        # ax[1].plot(T, difference)
-        # #ax[0][1].plot(T[:i], all_outputs["s1"][:i])
-        # ax[1].set_xlabel('time [s]')
-        # ax[1].grid()
-
-        # Lapierre output plot
-        ax[1].set_title('Vehicle PF output')
-        ax[1].plot(T, all_outputs["u_target"])
-        ax[1].plot(T, all_outputs["u_tracker"])
-        ax[1].set_ylim([-4, 4])
+        # ax[1][1].plot(T, difference)
+        #ax[0][1].plot(T[:i], all_outputs["s1"][:i])
         ax[1].set_xlabel('time [s]')
-        ax[1].set_ylabel('angle rate [rad/s]')
-        ax[1].legend(['target y1', 'target s1', 'tracker y1', 'tracker s1'])
+        ax[1].set_ylabel('Distance between tracker and the virtual target [m]')
         ax[1].grid()
+
+        # # Lapierre output plot
+        # ax[0][1].set_title('Vehicle PF Control Law')
+        # ax[0][1].plot(T, all_outputs["u_target"], color='tab:blue', linestyle='-')
+        # ax[0][1].plot(T, all_outputs["u_tracker"], color='magenta', linestyle='-')
+        # ax[0][1].set_ylim([-4, 4])
+        # ax[0][1].set_xlabel('time [s]')
+        # ax[0][1].set_ylabel('angle rate [rad/s]')
+        # ax[0][1].legend(['Target', 'Tracker'])
+        # ax[0][1].grid()
         
         fig.show()
         plt.pause(0.1)

@@ -51,7 +51,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[0][0].set_xlabel('X [m]')
         ax[0][0].set_ylabel('Y [m]')
         ax[0][0].grid()
-        ax[0][0].legend(['vehicle0 path', 'vehicle1 path', 'vehicle0', 'vehicle1'])
+        ax[0][0].legend(['Vehicle Path 0', 'Vehicle Path 1', 'Vehicle 0', 'Vehicle 1'])
 
         # Velocity plot
         ax[1][0].set_title('Vehicle Velocity')
@@ -61,7 +61,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[1][0].set_xlabel('time [s]')
         ax[1][0].set_ylabel('velocity [m/s]')
         ax[1][0].grid()
-        ax[1][0].legend(['vehicle0', 'vehicle1'])
+        ax[1][0].legend(['Vehicle 0', 'Vehicle 1'])
 
 
         # Error plot
@@ -79,14 +79,14 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
 
         
         # s1 y1 plot
-        ax[1][1].set_title('Vehicle PF control law')
+        ax[1][1].set_title('Vehicle PF Control Law')
         ax[1][1].plot(T, all_outputs["u0"])
         # ax[1][1].plot(T, all_outputs["u0"])
         ax[1][1].plot(T, all_outputs["u1"])
         # ax[1][1].plot(T, all_outputs["u1"])
         ax[1][1].set_xlabel('time [s]')
         ax[1][1].set_ylabel('angle rate [rad/s]')
-        ax[1][1].legend(['vehicle0', 'vehicle1'])
+        ax[1][1].legend(['Vehicle 0', 'Vehicle 1'])
         ax[1][1].grid()
         
 

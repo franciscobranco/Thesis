@@ -31,13 +31,13 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     input("Press Enter to start plotting...")
 
     # Start plotting
-    fig, ax = plt.subplots(2, 3)#, constrained_layout=True)
+    fig, ax = plt.subplots(3, 2)#, constrained_layout=True)
     plt.ion()
     #fig.set_size_inches((7, 14))
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()
 
-    Movie = True
+    Movie = False
 
     frame_factor = 16
     frame_rate = num_points / total_time * frame_factor
@@ -45,7 +45,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     legend_size = 8
     
     if Movie == False:
-        ax[0][0].set_title('Position plot')
+        ax[0][0].set_title('Vehicle Position')
         p_target0.plot_path(ax[0][0])
         p_target1.plot_path(ax[0][0])
         p_target2.plot_path(ax[0][0])
@@ -72,9 +72,9 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         p_r.append_path(circle_r)
         p_r.plot_path(ax[0][0])
 
-        ax[0][0].plot(all_outputs["x_ekf0"][-1], all_outputs["y_ekf0"][-1], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf0"][-1] / (2*pi) - 90), markersize=10)
-        ax[0][0].plot(all_outputs["x_ekf1"][-1], all_outputs["y_ekf1"][-1], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf1"][-1] / (2*pi) - 90), markersize=10, label='_nolegend_')
-        ax[0][0].plot(all_outputs["x_ekf2"][-1], all_outputs["y_ekf2"][-1], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf2"][-1] / (2*pi) - 90), markersize=10, label='_nolegend_')
+        ax[0][0].plot(all_outputs["x_ekf0"][-1], all_outputs["y_ekf0"][-1], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf0"][-1] / (2*pi) - 90), markersize=11)
+        ax[0][0].plot(all_outputs["x_ekf1"][-1], all_outputs["y_ekf1"][-1], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf1"][-1] / (2*pi) - 90), markersize=11, label='_nolegend_')
+        ax[0][0].plot(all_outputs["x_ekf2"][-1], all_outputs["y_ekf2"][-1], color='purple', marker=(3, 0, 360 * all_outputs["theta_ekf2"][-1] / (2*pi) - 90), markersize=11, label='_nolegend_')
 
         ax[0][0].plot(all_outputs["x_target0"][-1], all_outputs["y_target0"][-1], color='tab:blue', marker='o')
         ax[0][0].plot(all_outputs["x_target1"][-1], all_outputs["y_target1"][-1], color='tab:orange', marker='o')
@@ -92,11 +92,11 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             'Target Path 1',
             'Target Path 2',
             'Virtual Circle',
-            'Target Estimation',
+            'EKF Estimation',
             'Target 0',
             'Target 1',
             'Target 2',
-            'Target Prediction'
+            'CKF Prediction',
             'Tracker 0',
             'Tracker 1'
             ], prop={'size': legend_size})
@@ -108,12 +108,13 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[0][0].axis('equal')
 
         # Velocity plot
-        ax[1][0].set_title('Velocity plot')
+        ax[1][0].set_title('Vehicle Velocity')
         ax[1][0].plot(T, all_outputs["velocity_target0"], color='tab:blue', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_target1"], color='tab:orange', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_target2"], color='tab:green', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_tracker0"], color='magenta', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_tracker1"], color='red', linestyle='-')
+        ax[1][0].plot(T, all_outputs["velocity_circle"], color='tab:red', linestyle='-')
         # ax[1][0].plot(T[:i], mpf_tracker0["velocity"][:i], color='magenta', linestyle='-')
         # ax[1][0].plot(T[:i], mpf_tracker1["velocity"][:i], color='red', linestyle='-')
         ax[1][0].set_xlabel('time [s]')
@@ -123,26 +124,27 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             'Target 1',
             'Target 2',
             'Tracker 0',
-            'Tracker 1'], prop={'size': legend_size})
+            'Tracker 1',
+            'Virtual Circle'], prop={'size': legend_size})
         ax[1][0].grid()
         ax[1][0].set_xlim([0, 1250])
         #ax[0][1].set_ylim([-5, 5])
 
         # Cooperative Formation Control Plot
-        ax[2][1].set_title('Cooperative Formation Control')
-        ax[2][1].plot(T, cfc_centre, c='tab:red')
-        ax[2][1].plot(T, pf_target1["s"], c='tab:orange')
-        ax[2][1].scatter(cfc_tracker0["broadcasts"], np.full(len(cfc_tracker0["broadcasts"]), 1.5), c='tab:red', marker='+')
-        ax[2][1].scatter(cfc_target1["broadcasts"], np.full(len(cfc_target1["broadcasts"]), 1.5), c='tab:orange', marker='+')
-        ax[2][1].set_xlabel('time [s]')
-        ax[2][1].set_ylabel('Coordination State $\gamma$')
-        ax[2][1].legend([
+        ax[2][0].set_title('Cooperative Formation Control')
+        ax[2][0].plot(T, cfc_centre, c='tab:red')
+        ax[2][0].plot(T, pf_target1["s"], c='tab:orange')
+        ax[2][0].scatter(cfc_tracker0["broadcasts"], np.full(len(cfc_tracker0["broadcasts"]), 1.5), c='tab:red', marker='+')
+        ax[2][0].scatter(cfc_target1["broadcasts"], np.full(len(cfc_target1["broadcasts"]), 1.5), c='tab:orange', marker='+')
+        ax[2][0].set_xlabel('time [s]')
+        ax[2][0].set_ylabel('Coordination State $\gamma$')
+        ax[2][0].legend([
             'Virtual Circle',
             'Target 1',
             'Broadcast Virtual Circle',
             'Broadcast Target'], prop={'size': legend_size})
-        ax[2][1].grid()
-        ax[2][1].set_xlim([0, 1250])
+        ax[2][0].grid()
+        ax[2][0].set_xlim([0, 1250])
 
         # # ETC Broadcasting plot
         # ax[1][1].set_title('ETC Broadcasting')
@@ -185,17 +187,17 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             if all_outputs["range21"][j] != None:
                 measurements1[2][0].append(T[j])
                 measurements1[2][1].append(all_outputs["range21"][j])
-        ax[1][1].plot(measurements0[0][0], measurements0[0][1], color='tab:blue', linestyle='-')
-        ax[1][1].plot(measurements1[0][0], measurements1[0][1], color='tab:blue', linestyle='-', label='_nolegend_')
-        ax[1][1].plot(measurements0[1][0], measurements0[1][1], color='tab:orange', linestyle='-')
-        ax[1][1].plot(measurements1[1][0], measurements1[1][1], color='tab:orange', linestyle='-', label='_nolegend_')
-        ax[1][1].plot(measurements0[2][0], measurements0[2][1], color='tab:green', linestyle='-')
-        ax[1][1].plot(measurements1[2][0], measurements1[2][1], color='tab:green', linestyle='-', label='_nolegend_')
-        ax[1][1].set_xlabel('time [s]')
-        ax[1][1].set_ylabel('distance measure [m]')
-        ax[1][1].legend(['target0', 'target1', 'target2'])
-        ax[1][1].set_title('Range-measurements')
-        ax[1][1].grid()
+        ax[0][1].plot(measurements0[0][0], measurements0[0][1], color='tab:blue', linestyle='-')
+        ax[0][1].plot(measurements1[0][0], measurements1[0][1], color='tab:blue', linestyle='-', label='_nolegend_')
+        ax[0][1].plot(measurements0[1][0], measurements0[1][1], color='tab:orange', linestyle='-')
+        ax[0][1].plot(measurements1[1][0], measurements1[1][1], color='tab:orange', linestyle='-', label='_nolegend_')
+        ax[0][1].plot(measurements0[2][0], measurements0[2][1], color='tab:green', linestyle='-')
+        ax[0][1].plot(measurements1[2][0], measurements1[2][1], color='tab:green', linestyle='-', label='_nolegend_')
+        ax[0][1].set_xlabel('time [s]')
+        ax[0][1].set_ylabel('distance measure [m]')
+        ax[0][1].legend(['Target 0', 'Target 1', 'Target 2'])
+        ax[0][1].set_title('Range-measurements')
+        ax[0][1].grid()
 
         # # Vehicle path progression plot
         # ax[2][0].set_title('Vehicle Path Progression')
@@ -221,14 +223,15 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             error[0].append(np.sqrt(np.power(ekf_target0["x"][j] - all_outputs["x_target0"][j], 2) + np.power(ekf_target0["y"][j] - all_outputs["y_target0"][j], 2)))
             error[1].append(np.sqrt(np.power(ekf_target1["x"][j] - all_outputs["x_target1"][j], 2) + np.power(ekf_target1["y"][j] - all_outputs["y_target1"][j], 2)))
             error[2].append(np.sqrt(np.power(ekf_target2["x"][j] - all_outputs["x_target2"][j], 2) + np.power(ekf_target2["y"][j] - all_outputs["y_target2"][j], 2)))
-        ax[2][0].plot(T, error[0], linestyle='-', color='tab:blue')
-        ax[2][0].plot(T, error[1], linestyle='-', color='tab:orange')
-        ax[2][0].plot(T, error[2], linestyle='-', color='tab:green')
-        ax[2][0].set_xlabel('time [s]')
-        ax[2][0].set_ylabel('distance [m]')
+        ax[1][1].plot(T, error[0], linestyle='-', color='tab:blue')
+        ax[1][1].plot(T, error[1], linestyle='-', color='tab:orange')
+        ax[1][1].plot(T, error[2], linestyle='-', color='tab:green')
+        ax[1][1].set_xlabel('time [s]')
+        ax[1][1].set_ylabel('distance [m]')
         #ax[1][1].legend(['x_dot', 'y_dot', 'velocity'])
-        ax[2][0].set_title('EKF Error')
-        ax[2][0].grid()
+        ax[1][1].set_title('EKF Error')
+        ax[1][1].legend(['Target 0', 'Target 1', 'Target 2'])
+        ax[1][1].grid()
         
         # # Lapierre output u plot
         # ax[0][1].set_title('Lapierre Output')
@@ -255,12 +258,14 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
             position_error[0].append(np.linalg.norm(np.array([all_outputs["x_target0"][j] - all_outputs["x_pred_target0"][j], all_outputs["y_target0"][j] - all_outputs["y_pred_target0"][j]]))) #np.sqrt(np.power(all_outputs["x_target0"][j] - all_outputs["x_pred_target0"][j], 2) + np.power(all_outputs["y_target0"][j] - all_outputs["y_pred_target0"][j], 2)))
             position_error[1].append(np.linalg.norm(np.array([all_outputs["x_target1"][j] - all_outputs["x_pred_target1"][j], all_outputs["y_target1"][j] - all_outputs["y_pred_target1"][j]])))
             position_error[2].append(np.linalg.norm(np.array([all_outputs["x_target2"][j] - all_outputs["x_pred_target2"][j], all_outputs["y_target2"][j] - all_outputs["y_pred_target2"][j]])))
-        ax[0][1].set_title('CKF Error')
-        ax[0][1].plot(T, position_error[0], linestyle='-', color='tab:blue')
-        ax[0][1].plot(T, position_error[1], linestyle='-', color='tab:orange')
-        ax[0][1].plot(T, position_error[2], linestyle='-', color='tab:green')
-        ax[0][1].grid()
-        ax[0][1].legend(['target0', 'target1', 'target2'])
+        ax[2][1].set_title('CKF Error')
+        ax[2][1].plot(T, position_error[0], linestyle='-', color='tab:blue')
+        ax[2][1].plot(T, position_error[1], linestyle='-', color='tab:orange')
+        ax[2][1].plot(T, position_error[2], linestyle='-', color='tab:green')
+        ax[2][1].set_xlabel('time [s]')
+        ax[2][1].set_ylabel('distance [m]')
+        ax[2][1].grid()
+        ax[2][1].legend(['Target 0', 'Target 1', 'Target 2'])
         
 
         fig.show()

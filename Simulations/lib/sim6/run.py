@@ -76,7 +76,7 @@ def simulation(file_name):
         "gamma": 1,
         "k1": 1,
         "k2": 0.3,
-        "k_delta": 1,
+        "k_delta": 0.5,
         "theta_a": 0.8
     }
 

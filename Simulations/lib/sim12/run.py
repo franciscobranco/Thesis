@@ -169,13 +169,16 @@ def simulation(file_name):
     C_matrix = np.array([[1, 0, 0, 0],
                          [0, 1, 0, 0]])
 
-    doppler_var = 1#np.array([[0.01, 0], [0, 0.01]])
+    doppler_var = 0.1#np.array([[0.01, 0], [0, 0.01]])
 
     ckf_params = {
         "A_matrix": A_matrix,
         "B_matrix": B_matrix,
         "C_matrix": C_matrix,
-        "Q_matrix": Q_matrix,
+        "Q_matrix": Q_matrix + np.array([[doppler_var, 0, 0, 0],
+                                           [0, doppler_var, 0, 0],
+                                           [0, 0, 0, 0],
+                                           [0, 0, 0, 0]]),
         "doppler_var": doppler_var
     }
 

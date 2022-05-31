@@ -29,7 +29,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
     input("Press Enter to start plotting...")
 
     # Start plotting
-    fig, ax = plt.subplots(2,3)
+    fig, ax = plt.subplots(2,2)
     plt.ion()
     #fig.set_size_inches((7, 14))
     manager = plt.get_current_fig_manager()
@@ -63,7 +63,7 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         
         
 
-        ax[0][0].legend(['target path', 'target1', 'virtual circle', 'tracker0', 'tracker1', 'estimate'], bbox_to_anchor=(0.75, 0.75))
+        ax[0][0].legend(['Target Path', 'Virtual Circle', 'Target', 'Tracker 0', 'Tracker 1', 'Estimate'])#, bbox_to_anchor=(0.75, 0.75))
         # Labels and grid
         ax[0][0].set_title('Vehicle Position')
         ax[0][0].set_xlabel('X [m]')
@@ -73,13 +73,13 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         
 
         # Velocity plot
-        ax[1][0].set_title('Velocity plot')
+        ax[1][0].set_title('Vehicle Velocity')
         ax[1][0].plot(T, all_outputs["velocity_tracker0"], color='magenta', linestyle='-')
         ax[1][0].plot(T, all_outputs["velocity_tracker1"], color='red', linestyle='-')
         #ax[1].set_ylim([0.98, 1.02])
         ax[1][0].set_xlabel('time [s]')
-        ax[1][0].set_ylabel('Velocity [m/s]')
-        ax[1][0].legend(['target1', 'tracker0', 'tracker1'])
+        ax[1][0].set_ylabel('velocity [m/s]')
+        ax[1][0].legend(['Target 1', 'Tracker 0', 'Tracker 1'])
         ax[1][0].grid()
 
 
@@ -98,8 +98,8 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[0][1].plot(measurements1[0], measurements1[1], color='red', linestyle='-')
         ax[0][1].set_xlabel('time [s]')
         ax[0][1].set_ylabel('distance measure [m]')
-        ax[0][1].legend(['tracker0', 'tracker1'])
-        ax[0][1].set_title('Range-measurement Plot')
+        ax[0][1].legend(['Tracker 0', 'Tracker 1'])
+        ax[0][1].set_title('Range-measurements')
         ax[0][1].grid()
 
 
@@ -111,26 +111,26 @@ def plot(paths, num_points, total_time, resolution, T, past_values):
         ax[1][1].set_xlabel('time [s]')
         ax[1][1].set_ylabel('distance [m]')
         #ax[1][1].legend(['x_dot', 'y_dot', 'velocity'])
-        ax[1][1].set_title('EKF Error plot')
+        ax[1][1].set_title('EKF Error')
         ax[1][1].grid()
 
         
-        # s1 y1 plot
-        ax[0][2].set_title('Trackers\' Lapierre s1 and y1')
-        ax[0][2].plot(T, pf_tracker0["y1_geo"])
-        ax[0][2].plot(T, pf_tracker0["s1_geo"])
-        ax[0][2].plot(T, pf_tracker1["y1_geo"])
-        ax[0][2].plot(T, pf_tracker1["s1_geo"])
-        ax[0][2].grid()
-        ax[0][2].legend(['tracker0 y1', 'tracker0 s1', 'tracker1 y1', 'tracker1 s1'])
+        # # s1 y1 plot
+        # ax[0][2].set_title('Trackers\' Lapierre s1 and y1')
+        # ax[0][2].plot(T, pf_tracker0["y1_geo"])
+        # ax[0][2].plot(T, pf_tracker0["s1_geo"])
+        # ax[0][2].plot(T, pf_tracker1["y1_geo"])
+        # ax[0][2].plot(T, pf_tracker1["s1_geo"])
+        # ax[0][2].grid()
+        # ax[0][2].legend(['tracker0 y1', 'tracker0 s1', 'tracker1 y1', 'tracker1 s1'])
         
-        # Lapierre output u plot
-        ax[1][2].set_title('Lapierre output u')
-        ax[1][2].plot(T, all_outputs["u_target1"])
-        ax[1][2].plot(T, all_outputs["u_tracker0"], color='magenta', linestyle='-')
-        ax[1][2].plot(T, all_outputs["u_tracker1"], color='red', linestyle='-')
-        ax[1][2].grid()
-        ax[1][2].legend(['target1', 'tracker0', 'tracker1'])
+        # # Lapierre output u plot
+        # ax[1][2].set_title('Lapierre output u')
+        # ax[1][2].plot(T, all_outputs["u_target1"])
+        # ax[1][2].plot(T, all_outputs["u_tracker0"], color='magenta', linestyle='-')
+        # ax[1][2].plot(T, all_outputs["u_tracker1"], color='red', linestyle='-')
+        # ax[1][2].grid()
+        # ax[1][2].legend(['target1', 'tracker0', 'tracker1'])
         
 
         fig.show()
