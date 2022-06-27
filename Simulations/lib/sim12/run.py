@@ -253,4 +253,4 @@ def simulation(file_name):
         pickle.dump(past_values, f)
         f.close()
 
-    plotting.plot(paths, num_points, total_time, resolution, T, past_values)
+    # plotting.plot(paths, num_points, total_time, resolution, T, past_values)

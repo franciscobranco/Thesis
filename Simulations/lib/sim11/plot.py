@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import pathgeneration as pg
 
 
-def plot(paths, num_points, total_time, resolution, T, past_values):
+def plot(paths, num_points, total_time, resolution, T, past_values, Movie):
     p_target0 = paths["p_target0"]
     p_target1 = paths["p_target1"]
     p_target2 = paths["p_target2"]

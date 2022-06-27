@@ -400,8 +400,12 @@ class DoubleASVCFCTripleAUVFilter:
         
         inputs_kine_target0["velocity"] = outputs_cpf_target0["velocity"]
         inputs_pf_target0["velocity"] = outputs_cpf_target0["velocity"]
-        inputs_kine_target1["velocity"] = outputs_cfc_target1["velocity"]
-        inputs_pf_target1["velocity"] = outputs_cfc_target1["velocity"]
+        if t < 400 or t > 700:
+            inputs_kine_target1["velocity"] = outputs_cfc_target1["velocity"]
+            inputs_pf_target1["velocity"] = outputs_cfc_target1["velocity"]
+        else:
+            inputs_kine_target1["velocity"] = 0
+            inputs_pf_target1["velocity"] = 0
         inputs_kine_target2["velocity"] = outputs_cpf_target2["velocity"]
         inputs_pf_target2["velocity"] = outputs_cpf_target2["velocity"]
 
@@ -499,7 +503,10 @@ class DoubleASVCFCTripleAUVFilter:
         outputs["s_tracker1"] = outputs_pf_tracker1["s"]
         outputs["u_tracker1"] = outputs_pf_tracker1["u"]
         outputs["velocity_target0"] = outputs_cpf_target0["velocity"]
-        outputs["velocity_target1"] = outputs_cfc_target1["velocity"]
+        if t < 400 or t > 700:
+            outputs["velocity_target1"] = outputs_cfc_target1["velocity"]
+        else:
+            outputs["velocity_target1"] = 0
         outputs["velocity_target2"] = outputs_cpf_target2["velocity"]
         outputs["velocity_tracker0"] = outputs_cpf_tracker0["velocity"]
         outputs["velocity_tracker1"] = outputs_cpf_tracker1["velocity"]
