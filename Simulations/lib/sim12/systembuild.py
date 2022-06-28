@@ -240,17 +240,17 @@ class DoubleASVCFCTripleAUVFilter:
 
         # CPF ETC update
         broadcast_target0 = self.cpf_target0.check_update(t)
-        if broadcast_target0 != -1:
+        if broadcast_target0 != -1:# and np.random.rand(1) < 0.5:
             self.cpf_target1.reset(broadcast_target0)
             self.cpf_target2.reset(broadcast_target0)
 
         broadcast_target1 = self.cpf_target1.check_update(t)
-        if broadcast_target1 != -1:
+        if broadcast_target1 != -1:# and np.random.rand(1) < 0.5:
             self.cpf_target0.reset(broadcast_target1)
             self.cpf_target2.reset(broadcast_target1)
 
         broadcast_target2 = self.cpf_target2.check_update(t)
-        if broadcast_target2 != -1:
+        if broadcast_target2 != -1:# and np.random.rand(1) < 0.5:
             self.cpf_target0.reset(broadcast_target2)
             self.cpf_target1.reset(broadcast_target2)
         
@@ -260,11 +260,11 @@ class DoubleASVCFCTripleAUVFilter:
 
 
         broadcast_tracker0 = self.cpf_tracker0.check_update(t)
-        if broadcast_tracker0 != -1:
+        if broadcast_tracker0 != -1:# and np.random.rand(1) < 0.5:
             self.cpf_tracker1.reset(broadcast_tracker0)
 
         broadcast_tracker1 = self.cpf_tracker1.check_update(t)
-        if broadcast_tracker1 != -1:
+        if broadcast_tracker1 != -1:# and np.random.rand(1) < 0.5:
             self.cpf_tracker0.reset(broadcast_tracker1)
 
         _, outputs_cpf_tracker0 = self.cpf_tracker0.inputs_outputs()
@@ -272,11 +272,11 @@ class DoubleASVCFCTripleAUVFilter:
 
 
         broadcast_cfc_tracker0 = self.cfc_tracker0.check_update(t)
-        if broadcast_cfc_tracker0 != -1:
+        if broadcast_cfc_tracker0 != -1:# and np.random.rand(1) < 0.5:
             self.cfc_target1.reset(broadcast_cfc_tracker0)
 
         broadcast_cfc_target1 = self.cfc_target1.check_update(t)
-        if broadcast_cfc_target1 != -1:
+        if broadcast_cfc_target1 != -1:# and np.random.rand(1) < 0.5:
             self.cfc_tracker0.reset(broadcast_cfc_target1)
 
         _, outputs_cfc_tracker0 = self.cfc_tracker0.inputs_outputs()
@@ -294,7 +294,7 @@ class DoubleASVCFCTripleAUVFilter:
         target0_pos = np.array([outputs_kine_target0["x"], outputs_kine_target0["y"]])
         y_k00 = self.rms_target00.measurement(t, tracker0_pos, target0_pos)
         y_k01 = self.rms_target01.measurement(t, tracker1_pos, target0_pos)
-        if t <= 150 or t >= 150 + self.time_halted:
+        if t <= 150 or t >= 150 + self.time_halted:# and np.random.rand(1) < 0.5:
             inputs_ekf_target0["range0"] = y_k00
             inputs_ekf_target0["range1"] = y_k01
         else:
@@ -312,7 +312,7 @@ class DoubleASVCFCTripleAUVFilter:
         target1_pos = np.array([outputs_kine_target1["x"], outputs_kine_target1["y"]])
         y_k10 = self.rms_target10.measurement(t, tracker0_pos, target1_pos)
         y_k11 = self.rms_target11.measurement(t, tracker1_pos, target1_pos)
-        if t <= 150 or t >= 150 + self.time_halted:
+        if t <= 150 or t >= 150 + self.time_halted:# and np.random.rand(1) < 0.5:
             inputs_ekf_target1["range0"] = y_k10
             inputs_ekf_target1["range1"] = y_k11
         else:
@@ -330,7 +330,7 @@ class DoubleASVCFCTripleAUVFilter:
         target2_pos = np.array([outputs_kine_target2["x"], outputs_kine_target2["y"]])
         y_k20 = self.rms_target20.measurement(t, tracker0_pos, target2_pos)
         y_k21 = self.rms_target21.measurement(t, tracker1_pos, target2_pos)
-        if t <= 150 or t >= 150 + self.time_halted:
+        if t <= 150 or t >= 150 + self.time_halted:# and np.random.rand(1) < 0.5:
             inputs_ekf_target2["range0"] = y_k20
             inputs_ekf_target2["range1"] = y_k21
         else:
@@ -344,7 +344,7 @@ class DoubleASVCFCTripleAUVFilter:
         vel_m0 = self.dms_target.measurement(t, outputs_kine_target0["theta_m"], outputs_cpf_target0["velocity"])
         inputs_ckf_target0["vx_dop"] = vel_m0[0]
         inputs_ckf_target0["vy_dop"] = vel_m0[1]
-        if t - self.last_cf_ekf_time0 > 5 and np.abs(outputs_pf_target1["s"] - self.cfc_tracker0.centre_gamma) <= 0.05:
+        if t - self.last_cf_ekf_time0 > 5 and np.abs(outputs_pf_target1["s"] - self.cfc_tracker0.centre_gamma) <= 0.01:# and np.random.rand(1) < 0.5:
             self.last_cf_ekf_time0 = t
             inputs_ckf_target0["x_EKF"] = outputs_ekf_target0["x"]
             inputs_ckf_target0["y_EKF"] = outputs_ekf_target0["y"]
@@ -360,7 +360,7 @@ class DoubleASVCFCTripleAUVFilter:
         vel_m1 = self.dms_target.measurement(t, outputs_kine_target1["theta_m"], outputs_cfc_target1["velocity"])
         inputs_ckf_target1["vx_dop"] = vel_m1[0]
         inputs_ckf_target1["vy_dop"] = vel_m1[1]
-        if t - self.last_cf_ekf_time1 > 5 and np.abs(outputs_pf_target1["s"] - self.cfc_tracker0.centre_gamma) <= 0.05:
+        if t - self.last_cf_ekf_time1 > 5 and np.abs(outputs_pf_target1["s"] - self.cfc_tracker0.centre_gamma) <= 0.01:# and np.random.rand(1) < 0.5:
             self.last_cf_ekf_time1 = t
             inputs_ckf_target1["x_EKF"] = outputs_ekf_target1["x"]
             inputs_ckf_target1["y_EKF"] = outputs_ekf_target1["y"]
@@ -376,7 +376,7 @@ class DoubleASVCFCTripleAUVFilter:
         vel_m2 = self.dms_target.measurement(t, outputs_kine_target2["theta_m"], outputs_cpf_target2["velocity"])
         inputs_ckf_target2["vx_dop"] = vel_m2[0]
         inputs_ckf_target2["vy_dop"] = vel_m2[1]
-        if t - self.last_cf_ekf_time2 > 5 and np.abs(outputs_pf_target1["s"] - self.cfc_tracker0.centre_gamma) <= 0.05:
+        if t - self.last_cf_ekf_time2 > 5 and np.abs(outputs_pf_target1["s"] - self.cfc_tracker0.centre_gamma) <= 0.01:# and np.random.rand(1) < 0.5:
             self.last_cf_ekf_time2 = t
             inputs_ckf_target2["x_EKF"] = outputs_ekf_target2["x"]
             inputs_ckf_target2["y_EKF"] = outputs_ekf_target2["y"]
@@ -400,7 +400,7 @@ class DoubleASVCFCTripleAUVFilter:
         
         inputs_kine_target0["velocity"] = outputs_cpf_target0["velocity"]
         inputs_pf_target0["velocity"] = outputs_cpf_target0["velocity"]
-        if t < 400 or t > 700:
+        if t < 500 or t > 700:
             inputs_kine_target1["velocity"] = outputs_cfc_target1["velocity"]
             inputs_pf_target1["velocity"] = outputs_cfc_target1["velocity"]
         else:
@@ -503,7 +503,7 @@ class DoubleASVCFCTripleAUVFilter:
         outputs["s_tracker1"] = outputs_pf_tracker1["s"]
         outputs["u_tracker1"] = outputs_pf_tracker1["u"]
         outputs["velocity_target0"] = outputs_cpf_target0["velocity"]
-        if t < 400 or t > 700:
+        if t < 500 or t > 700:
             outputs["velocity_target1"] = outputs_cfc_target1["velocity"]
         else:
             outputs["velocity_target1"] = 0

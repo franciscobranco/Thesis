@@ -34,7 +34,7 @@ def simulation(file_name):
     start_tracker = 0.0
     position_tracker = np.array([0.0, 0.0])
     orientation_tracker = -pi/2
-    size_tracker = 18.0
+    size_tracker = 20.0
     arc_tracker = 2*pi
     radius_tracker = size_tracker
 
